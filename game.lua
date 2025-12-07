@@ -3,13 +3,17 @@ Game = {}
 
 function Game:new()
     local obj = {
-        unicorn = require('unicorn'):new(400, 200),
+        width = love.graphics.getWidth(),
+        height = love.graphics.getHeight(),
+        unicorn = nil,
         rainbow = require('rainbow'):new(),
         score = 0,
         game_over = false,
-        ground = 550,
+        ground = 0,
         stage = 1
     }
+    obj.ground = obj.height - 50
+    obj.unicorn = require('unicorn'):new(obj.width / 2, obj.height / 2, obj.ground, obj.width)
     setmetatable(obj, self)
     self.__index = self
     return obj
@@ -40,7 +44,7 @@ end
 function Game:draw()
     -- Draw ground
     love.graphics.setColor(0.5, 0.5, 0.5)
-    love.graphics.rectangle('fill', 0, self.ground, 800, 50)
+    love.graphics.rectangle('fill', 0, self.ground, self.width, 50)
 
     -- Draw rainbow in background
     self.rainbow:draw()
@@ -56,14 +60,14 @@ function Game:draw()
     -- Draw game over
     if self.game_over then
         love.graphics.setColor(1, 0, 0)
-        love.graphics.printf("Game Over! Press R to restart", 0, 300, 800, 'center')
+        love.graphics.printf("Game Over! Press R to restart", 0, self.height / 2, self.width, 'center')
     end
 end
 
 function Game:keypressed(key)
     if self.game_over and key == 'r' then
         -- Restart
-        self.unicorn = require('unicorn'):new(400, 200)
+        self.unicorn = require('unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
         self.rainbow = require('rainbow'):new()
         self.score = 0
         self.game_over = false

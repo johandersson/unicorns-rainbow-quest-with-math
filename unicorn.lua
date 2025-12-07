@@ -1,7 +1,7 @@
 -- unicorn.lua
 Unicorn = {}
 
-function Unicorn:new(x, y)
+function Unicorn:new(x, y, ground, width)
     local obj = {
         x = x or 400,
         y = y or 200,
@@ -11,6 +11,8 @@ function Unicorn:new(x, y)
         gravity = 400,  -- Strong gravity for challenge
         width = 40,
         height = 30,
+        ground = ground or 550,
+        screen_width = width or 800,
         sprite = love.graphics.newImage('unicorn-sprite.png')
     }
     -- Create quads for upper and lower parts
@@ -45,10 +47,10 @@ function Unicorn:update(dt)
 
     -- Keep in bounds
     if self.x - self.width / 2 < 0 then self.x = self.width / 2 end
-    if self.x + self.width / 2 > 800 then self.x = 800 - self.width / 2 end
+    if self.x + self.width / 2 > self.screen_width then self.x = self.screen_width - self.width / 2 end
     if self.y - self.height / 2 < 0 then self.y = self.height / 2 end
-    if self.y + self.height / 2 > 550 then
-        self.y = 550 - self.height / 2
+    if self.y + self.height / 2 > self.ground then
+        self.y = self.ground - self.height / 2
         -- Game over if touch ground
         return true -- signal game over
     end
