@@ -1,0 +1,5 @@
+describe("Main", function()
+    it("should have a basic test", function()
+        assert.is_true(true)
+    end)
+end)
