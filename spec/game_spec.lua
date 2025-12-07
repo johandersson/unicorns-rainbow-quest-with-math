@@ -1,4 +1,9 @@
 describe("Game", function()
+    before_each(function()
+        love.graphics.getWidth = function() return 800 end
+        love.graphics.getHeight = function() return 600 end
+    end)
+
     it("should create with unicorn and rainbow", function()
         local g = Game:new()
         assert.is_not_nil(g.unicorn)
