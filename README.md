@@ -1,6 +1,6 @@
 # From Unicorns with LÖVE
 
-A starter LÖVE Lua project with unit testing enabled using Busted. Work in progress.
+A starter LÖVE Lua project with unit testing enabled using Busted. **WORK IN PROGRESS**.
 
 ## Prerequisites
 
