@@ -18,7 +18,7 @@ function Game:new()
     obj.ground = obj.height - 50
     obj.sun_x = obj.width / 2
     obj.unicorn = require('unicorn'):new(obj.width / 2, obj.height / 2, obj.ground, obj.width)
-    table.insert(obj.trolls, require('troll'):new(math.random(0, obj.width), -10, 150))
+    table.insert(obj.trolls, require('troll'):new(math.random(0, obj.width), -10, 200))
     setmetatable(obj, self)
     self.__index = self
     return obj
@@ -40,7 +40,7 @@ function Game:update(dt)
     -- Update trolls
     for i, troll in ipairs(self.trolls) do
         troll:update(dt)
-        if math.abs(self.unicorn.x - troll.x) < 30 and math.abs(self.unicorn.y - troll.y) < 30 then
+        if math.abs(self.unicorn.x - troll.x) < 40 and math.abs(self.unicorn.y - troll.y) < 40 then
             self.lives = self.lives - 1
             table.remove(self.trolls, i)
             if self.lives <= 0 then
@@ -57,7 +57,7 @@ function Game:update(dt)
         self.coins = self.coins + 20
         self.stage = self.stage + 1
         self.unicorn = require('unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
-        table.insert(self.trolls, require('troll'):new(math.random(0, self.width), -10, 150))
+        table.insert(self.trolls, require('troll'):new(math.random(0, self.width), -10, 200))
     end
 end
 
@@ -134,7 +134,7 @@ function Game:keypressed(key)
         self.stage = 1
         self.lives = 3
         self.trolls = {}
-        table.insert(self.trolls, require('troll'):new(math.random(0, self.width), -10, 150))
+        table.insert(self.trolls, require('troll'):new(math.random(0, self.width), -10, 200))
     end
 end
 

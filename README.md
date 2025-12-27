@@ -1,6 +1,14 @@
-# From Unicorns with LÖVE
+# Unicorn Flight with LÖVE
 
-A LÖVE Lua game for children. **WORK IN PROGRESS**.
+A LÖVE Lua game where you control a unicorn flying to the sun while avoiding scary falling trolls. **WORK IN PROGRESS**.
+
+## Gameplay
+
+- Fly the unicorn upward using the UP arrow key.
+- Reach the sun to advance stages and earn coins.
+- Avoid falling trolls that can cost lives.
+- Start with 3 lives and 100 coins.
+- Game ends when all lives are lost by hitting trolls or the ground.
 
 ## Prerequisites
 
@@ -27,10 +35,21 @@ busted spec/
 
 ## Project Structure
 
-- `main.lua`: Main game file
+- `main.lua`: Main game entry point and LÖVE callbacks
+- `game.lua`: Game logic, including unicorn, trolls, and game state
+- `unicorn.lua`: Unicorn class for movement and drawing
+- `troll.lua`: Troll class for falling enemies
 - `conf.lua`: LÖVE configuration
 - `spec/`: Unit tests directory
 
+## Controls
+
+- UP arrow: Fly upward
+- F11: Toggle fullscreen
+- ESC: Exit game (with confirmation)
+- R: Restart after game over
+
 ## Assets
 
-- Unicorn sprite by **magdum**, licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), sourced from [OpenGameArt](https://opengameart.org/content/running-unicorn)
+- Unicorn and troll graphics are procedurally generated
+- Rainbow background is drawn dynamically
