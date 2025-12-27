@@ -50,7 +50,7 @@ function Game:draw()
     }
     for i = 1, 7 do
         love.graphics.setColor(unpack(rainbow_colors[i]))
-        love.graphics.rectangle('fill', 0, (i-1) * 20, self.width, 20)
+        love.graphics.arc('fill', self.width / 2, 0, (8 - i) * 50, 0, math.pi)
     end
 
     -- Draw sun
