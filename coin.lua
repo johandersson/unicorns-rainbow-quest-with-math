@@ -28,7 +28,9 @@ function Coin:isCollectedBy(unicorn)
     local dx = unicorn.x - self.x
     local dy = unicorn.y - self.y
     local ur = math.max(unicorn.width or 0, unicorn.height or 0) / 2
-    local combined = (self.radius or 0) + ur
+    -- add a small tolerance so approach direction doesn't block collection
+    local tolerance = 4
+    local combined = (self.radius or 0) + ur + tolerance
     return (dx*dx + dy*dy) <= (combined * combined)
 end
 

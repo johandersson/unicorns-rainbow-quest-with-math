@@ -370,9 +370,6 @@ function Game:draw()
     -- Draw background canvas
     love.graphics.draw(self.background_canvas, 0, 0)
 
-    -- Draw unicorn
-    self.unicorn:draw()
-
     -- Draw trolls via manager if present
     if self.trollManager then
         self.trollManager:draw()
@@ -384,7 +381,7 @@ function Game:draw()
         end
     end
 
-    -- Draw static collectible coins
+    -- Draw static collectible coins (behind the unicorn so unicorn appears on top)
     for _, fc in ipairs(self.field_coins) do
         if type(fc.draw) == 'function' then
             fc:draw()
@@ -398,6 +395,9 @@ function Game:draw()
             love.graphics.circle('line', fc.x, fc.y, self.coin_radius)
         end
     end
+
+    -- Draw unicorn on top of coins
+    self.unicorn:draw()
 
     -- Draw UI (use smaller font for status to avoid large text)
     love.graphics.setFont(self.font_small)
