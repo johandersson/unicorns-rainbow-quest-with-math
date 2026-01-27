@@ -59,14 +59,16 @@ function Quiz:update(dt)
             self.game.paused = false
             self.game.unicorn = require('unicorn'):new(self.game.width / 2, self.game.height / 2, self.game.ground, self.game.width)
             -- after result, spawn a troll to resume challenge
-            self.game.trollManager:add(math.random(0, self.game.width), -10, self.game.troll_base_speed)
+            if self.game.trollManager then
+                self.game.trollManager:add(math.random(0, self.game.width), -10, self.game.troll_base_speed)
+            end
         end
         return
     end
     if self.game.quiz_timer then
         self.game.quiz_timer = self.game.quiz_timer - dt
         if self.game.quiz_timer <= 0 then
-            local msgs = {"Time! Try faster next time.", "Out of time!", "Too slow!"}
+            local msgs = (self.game.L and self.game.L.timeout_msgs) or {"Time! Try faster next time.", "Out of time!", "Too slow!"}
             self.game.quiz_result_msg = msgs[math.random(#msgs)]
             self.game.quiz_result_timer = self.result_duration
             -- leave quiz_active true so result clears later

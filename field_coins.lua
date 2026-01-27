@@ -51,7 +51,9 @@ function FieldCoins:update(dt)
         if collected then
             self.game.progress_coins = self.game.progress_coins + 1
             self.game.coins = self.game.coins + 10
-            self.game.extra_life_msg = "+10 coins"
+            -- localized extra coins message
+            local msg = (self.game.L and self.game.L.gain_coins) or "+%d coins"
+            self.game.extra_life_msg = msg:format(10)
             self.game.extra_life_msg_timer = 1.2
             table.insert(self.coin_pool, fc)
             self.field_coins[k] = self.field_coins[#self.field_coins]

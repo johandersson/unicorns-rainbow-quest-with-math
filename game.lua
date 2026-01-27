@@ -58,6 +58,8 @@ function Game:new()
         progress_coins = 0,
         -- manual pause toggle (pause everything until 'p' pressed again)
         manual_pause = false,
+        -- show welcome screen at launch until player confirms
+        show_welcome = true,
         -- quiz/problem configuration
         problems = {},
         next_problem_index = 1
@@ -123,6 +125,8 @@ function Game:new()
     -- attach managers
     obj.trollManager = require('troll_manager'):new(obj)
     obj.quizManager = require('quiz_manager'):new(obj)
+    -- load Swedish locale by default
+    obj.L = require('locales.sv')
 
     return obj
 end
@@ -207,6 +211,9 @@ function Game:update(dt)
 
     -- global manual pause: halt all gameplay updates until toggled off
     if self.manual_pause then return end
+
+    -- welcome screen blocks gameplay until player confirms
+    if self.show_welcome then return end
 
     -- If a quiz is active, delegate timing and results to the quiz manager
     if self.quiz_active then
@@ -316,7 +323,8 @@ function Game:update(dt)
             add = math.min(add, 100)
             self.coins = self.coins - add * self.extra_life_cost
             self.lives = (self.lives or 0) + add
-            self.extra_life_msg = "+" .. tostring(add) .. " Life" .. (add > 1 and "s!" or "!")
+            local lm = (self.L and self.L.gain_lives) or "+%d lives"
+            self.extra_life_msg = lm:format(add)
             self.extra_life_msg_timer = self.extra_life_msg_duration
         end
 
@@ -352,7 +360,8 @@ function Game:update(dt)
             end
         elseif self.sun_hits >= self.sun_hits_required then
             -- Not enough field coins yet; encourage player to collect more
-            self.extra_life_msg = "Collect " .. (self.coins_to_advance - self.progress_coins) .. " more coins to level up"
+            local msgfmt = (self.L and self.L.collect_more) or "Collect %d more coins to level up"
+            self.extra_life_msg = msgfmt:format(self.coins_to_advance - self.progress_coins)
             self.extra_life_msg_timer = 2.0
         end
         -- do not spawn new troll/unicorn until quiz finished
@@ -417,15 +426,15 @@ function Game:draw()
         love.graphics.setColor(1, 1, 1)
         love.graphics.print(text, x, y)
     end
-    shadowed_print("Coins: " .. self.coins, 10, 10)
-    shadowed_print("Stage: " .. self.stage .. " (need: " .. self.sun_hits_required .. ")", 10, 26)
-    shadowed_print("Lives: " .. self.lives, 10, 42)
-    shadowed_print("Progress: " .. self.progress_coins .. "/" .. self.coins_to_advance, 10, 58)
+    shadowed_print((self.L and self.L.coins_label or "Coins: %d"):format(self.coins), 10, 10)
+    shadowed_print((self.L and self.L.stage_label or "Stage: %d (need: %d)"):format(self.stage, self.sun_hits_required), 10, 26)
+    shadowed_print((self.L and self.L.lives_label or "Lives: %d"):format(self.lives), 10, 42)
+    shadowed_print((self.L and self.L.progress_label or "Progress: %d/%d"):format(self.progress_coins, self.coins_to_advance), 10, 58)
 
     -- Draw game over
     if self.game_over then
         love.graphics.setColor(1, 0, 0)
-        love.graphics.printf("Game Over! Press R to restart", 0, self.height / 2, self.width, 'center')
+        love.graphics.printf((self.L and self.L.game_over) or "Game Over! Press R to restart", 0, self.height / 2, self.width, 'center')
     end
 
     -- Death flash / message when paused
@@ -435,13 +444,13 @@ function Game:draw()
         love.graphics.rectangle('fill', 0, 0, self.width, self.height)
 
         love.graphics.setColor(1, 1, 1)
-        local msg = "You died! Lives left: " .. self.lives
+        local msg = (self.L and self.L.you_died or "You died! Lives left: %d"):format(self.lives)
         love.graphics.setFont(self.font_large)
         love.graphics.printf(msg, 0, self.height / 2 - 20, self.width, 'center')
 
         love.graphics.setFont(self.font_small)
         love.graphics.setColor(1, 1, 1)
-        love.graphics.printf("Respawning...", 0, self.height / 2 + 20, self.width, 'center')
+        love.graphics.printf((self.L and self.L.respawning) or "Respawning...", 0, self.height / 2 + 20, self.width, 'center')
     end
 
     -- Extra life message (top-right so it doesn't clash with center messages)
@@ -460,7 +469,7 @@ function Game:draw()
 
         love.graphics.setFont(self.font_large)
         love.graphics.setColor(1, 1, 1)
-        love.graphics.printf("Math Challenge!", 0, self.height/2 - 120, self.width, 'center')
+        love.graphics.printf((self.L and self.L.quiz_title) or "Math Challenge!", 0, self.height/2 - 120, self.width, 'center')
 
         love.graphics.setFont(self.font_small)
         love.graphics.printf(self.quiz_problem or "", 0, self.height/2 - 70, self.width, 'center')
@@ -468,7 +477,7 @@ function Game:draw()
         -- show remaining time
         if self.quiz_timer then
             love.graphics.setColor(1, 0.8, 0.6)
-            love.graphics.printf("Time: " .. math.ceil(self.quiz_timer) .. "s", 0, self.height/2 - 50, self.width, 'center')
+            love.graphics.printf((self.L and self.L.time_label or "Time: %ds"):format(math.ceil(self.quiz_timer)), 0, self.height/2 - 50, self.width, 'center')
             love.graphics.setColor(1,1,1)
         end
 
@@ -483,7 +492,7 @@ function Game:draw()
         -- hint
         love.graphics.setFont(self.font_small)
         love.graphics.setColor(0.8,0.8,0.8)
-        love.graphics.printf("Type the answer and press Enter. +100 coins for correct.", 0, self.height/2 + 30, self.width, 'center')
+        love.graphics.printf((self.L and self.L.quiz_hint) or "Type the answer and press Enter. +100 coins for correct.", 0, self.height/2 + 30, self.width, 'center')
     end
 
     -- Quiz result message: draw at top-center below status texts with shadow
@@ -507,6 +516,21 @@ function Game:draw()
         love.graphics.setFont(self.font_large)
         love.graphics.setColor(1, 1, 1)
         love.graphics.printf("Paused - press P to resume", 0, self.height/2 - 20, self.width, 'center')
+    end
+
+    -- Welcome screen overlay (blocks start until confirmed)
+    if self.show_welcome then
+        love.graphics.setColor(0, 0, 0, 0.7)
+        love.graphics.rectangle('fill', 0, 0, self.width, self.height)
+        love.graphics.setFont(self.font_large)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf("Welcome to Rainbow Quest!", 0, self.height/2 - 80, self.width, 'center')
+        love.graphics.setFont(self.font_small)
+        love.graphics.setColor(0.9, 0.9, 0.9)
+        love.graphics.printf("Collect coins, reach the sun, and solve math challenges.", 0, self.height/2 - 40, self.width, 'center')
+        love.graphics.printf("Controls: Arrow keys to move, Up to fly, P to pause.", 0, self.height/2 - 10, self.width, 'center')
+        love.graphics.setColor(1, 1, 0)
+        love.graphics.printf("Press Enter or Space to Start", 0, self.height/2 + 30, self.width, 'center')
     end
 end
 
@@ -569,6 +593,14 @@ function Game:keypressed(key)
     -- manual pause toggle
     if key == 'p' then
         self.manual_pause = not self.manual_pause
+        return
+    end
+    -- if welcome screen is active, Enter/Space starts the game
+    if self.show_welcome and (key == 'return' or key == 'kpenter' or key == 'space') then
+        self.show_welcome = false
+        -- ensure game state is ready
+        self.manual_pause = false
+        self.paused = false
         return
     end
     -- If quiz is active, handle textbox input here
