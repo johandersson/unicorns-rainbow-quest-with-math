@@ -27,6 +27,17 @@ function Game:new()
         -- Pre-created fonts to avoid per-frame allocations
         font_large = love.graphics.newFont(28),
         font_small = love.graphics.newFont(12)
+        ,
+        -- Quiz / math problem fields
+        quiz_active = false,
+        quiz_input = "",
+        quiz_problem = nil,
+        quiz_answer = nil,
+        quiz_result_msg = nil,
+        quiz_result_timer = 0,
+        quiz_result_duration = 1.5,
+        problems_file = 'math_problems.txt',
+        problems_count = 1000
     }
     obj.ground = obj.height - 50
     obj.sun_x = obj.width / 2
@@ -141,6 +152,21 @@ function Game:update(dt)
         end
     end
 
+    -- update quiz result timer (resume when finished)
+    if self.quiz_result_timer and self.quiz_result_timer > 0 then
+        self.quiz_result_timer = self.quiz_result_timer - dt
+        if self.quiz_result_timer <= 0 then
+            self.quiz_result_timer = 0
+            self.quiz_result_msg = nil
+            -- finish quiz and resume gameplay
+            self.quiz_active = false
+            self.paused = false
+            -- respawn unicorn and add a troll for next stage
+            self.unicorn = require('unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
+            self:addTroll(math.random(0, self.width), -10, 200)
+        end
+    end
+
     -- Update trolls (swap-remove loop to avoid O(N) shifts)
     local i = 1
     while i <= #self.trolls do
@@ -193,8 +219,41 @@ function Game:update(dt)
             self.extra_life_msg = "+1 Life!"
             self.extra_life_msg_timer = self.extra_life_msg_duration
         end
-        self.unicorn = require('unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
-        self:addTroll(math.random(0, self.width), -10, 200)
+        -- prepare quiz at end of stage: pause gameplay and show a random math problem
+        self.paused = true
+        self.quiz_active = true
+        self.quiz_input = ""
+        -- pick a random problem (memory-efficient: iterate file until chosen line)
+        local idx = math.random(1, self.problems_count)
+        local line
+        local count = 0
+        for l in io.lines(self.problems_file) do
+            if l and l:match('%S') and not l:match('^%s*%-%-') then
+                count = count + 1
+                if count == idx then
+                    line = l
+                    break
+                end
+            end
+        end
+        if line then
+            local expr, ans = line:match('^(.-)=%s*(%-?%d+)%s*$')
+            if expr then
+                -- trim
+                expr = expr:match('^%s*(.-)%s*$')
+                self.quiz_problem = expr
+                self.quiz_answer = tonumber(ans)
+            else
+                -- fallback: show whole line and expect numeric answer after '='
+                local a = line:match('=%s*(%-?%d+)')
+                self.quiz_problem = line
+                self.quiz_answer = tonumber(a)
+            end
+        else
+            self.quiz_problem = "1 + 1"
+            self.quiz_answer = 2
+        end
+        -- do not spawn new troll/unicorn until quiz finished
     end
 end
 
@@ -245,6 +304,40 @@ function Game:draw()
         love.graphics.setFont(self.font_large)
         love.graphics.setColor(1, 1, 0)
         love.graphics.printf(self.extra_life_msg or "", 0, 80, self.width, 'center')
+    end
+
+    -- Quiz overlay
+    if self.quiz_active then
+        -- darken background
+        love.graphics.setColor(0, 0, 0, 0.6)
+        love.graphics.rectangle('fill', 0, 0, self.width, self.height)
+
+        love.graphics.setFont(self.font_large)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf("Math Challenge!", 0, self.height/2 - 120, self.width, 'center')
+
+        love.graphics.setFont(self.font_small)
+        love.graphics.printf(self.quiz_problem or "", 0, self.height/2 - 70, self.width, 'center')
+
+        -- input box
+        local box_w, box_h = 300, 40
+        local bx, by = (self.width - box_w)/2, self.height/2 - 30
+        love.graphics.setColor(1,1,1)
+        love.graphics.rectangle('line', bx, by, box_w, box_h)
+        love.graphics.setColor(1,1,1)
+        love.graphics.printf(self.quiz_input, bx + 8, by + 8, box_w - 16, 'left')
+
+        -- hint
+        love.graphics.setFont(self.font_small)
+        love.graphics.setColor(0.8,0.8,0.8)
+        love.graphics.printf("Type the answer and press Enter. +100 coins for correct.", 0, self.height/2 + 30, self.width, 'center')
+    end
+
+    -- Quiz result message
+    if self.quiz_result_timer and self.quiz_result_timer > 0 then
+        love.graphics.setFont(self.font_large)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf(self.quiz_result_msg or "", 0, self.height/2 - 80, self.width, 'center')
     end
 end
 
@@ -304,6 +397,35 @@ function Game:resize(w, h)
 end
 
 function Game:keypressed(key)
+    -- If quiz is active, handle textbox input here
+    if self.quiz_active then
+        if key == 'backspace' then
+            -- safe for ASCII digits
+            self.quiz_input = self.quiz_input:sub(1, -2)
+            return
+        end
+        if key == 'return' or key == 'kpenter' then
+            -- submit answer
+            local entered = tonumber(self.quiz_input)
+            if entered and self.quiz_answer and entered == self.quiz_answer then
+                -- correct
+                self.coins = self.coins + 100
+                local msgs = {"Nice! Math wizard! +100 coins","Boom! Brain power rewarded! +100 coins","Correct! You're unstoppable! +100 coins"}
+                self.quiz_result_msg = msgs[math.random(#msgs)]
+            else
+                local msgs = {"Oops! Not quite.", "Close, but no cookie.", "Nope — better luck next time."}
+                self.quiz_result_msg = msgs[math.random(#msgs)]
+            end
+            self.quiz_result_timer = self.quiz_result_duration
+            return
+        end
+        -- accept digits, minus and space
+        if #key == 1 and key:match('%d') or key == '-' then
+            self.quiz_input = self.quiz_input .. key
+            return
+        end
+        return
+    end
     if self.game_over and key == 'r' then
         -- Restart
         self.unicorn = require('unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
