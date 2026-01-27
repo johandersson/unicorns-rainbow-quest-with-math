@@ -1,4 +1,15 @@
 -- unicorn.lua
+local unicorn_sprite = nil
+local quadUp = nil
+local quadDown = nil
+
+if not unicorn_sprite then
+    unicorn_sprite = love.graphics.newImage('unicorn-sprite.png')
+    local w, h = unicorn_sprite:getDimensions()
+    quadUp = love.graphics.newQuad(0, 0, w, h/2, w, h)
+    quadDown = love.graphics.newQuad(0, h/2, w, h/2, w, h)
+end
+
 Unicorn = {}
 
 function Unicorn:new(x, y, ground, width)
@@ -13,12 +24,10 @@ function Unicorn:new(x, y, ground, width)
         height = 30,
         ground = ground or 550,
         screen_width = width or 800,
-        sprite = love.graphics.newImage('unicorn-sprite.png')
+        sprite = unicorn_sprite,
+        quadUp = quadUp,
+        quadDown = quadDown
     }
-    -- Create quads for upper and lower parts
-    local w, h = obj.sprite:getDimensions()
-    obj.quadUp = love.graphics.newQuad(0, 0, w, h/2, w, h)
-    obj.quadDown = love.graphics.newQuad(0, h/2, w, h/2, w, h)
     setmetatable(obj, self)
     self.__index = self
     return obj
