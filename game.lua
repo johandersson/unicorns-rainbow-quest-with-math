@@ -52,7 +52,7 @@ function Game:new()
         coin_spawn_timer = 0,
         coin_spawn_interval = 12.0,
         coin_lifetime = 20.0,
-        coin_radius = 12,
+        coin_radius = 18,
         coins_to_advance = 3,
         progress_coins = 0,
         -- pre-generated math problems (filled at startup)
@@ -161,7 +161,9 @@ end
 
 function Game:spawnFieldCoin()
     local cx = math.random(40, self.width - 40)
-    local cy = math.random(self.ground - 140, self.ground - 40)
+    -- place coins above the rainbow / in the upper play area so they're easier to catch
+    local upper_max = math.max(60, math.floor(self.height * 0.35))
+    local cy = math.random(30, upper_max)
     local coin
     if #self.coin_pool > 0 then
         coin = table.remove(self.coin_pool)
