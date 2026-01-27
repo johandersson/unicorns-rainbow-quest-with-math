@@ -63,6 +63,7 @@ function Game:new()
     obj.sun_x = obj.width / 2
 
         -- Create background canvas
+        obj.background_canvas = love.graphics.newCanvas(obj.width, obj.height)
         love.graphics.setCanvas(obj.background_canvas)
 
     -- Draw rainbow background
