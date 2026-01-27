@@ -18,7 +18,7 @@ function Unicorn:new(x, y, ground, width)
         y = y or 200,
         vx = 0,
         vy = 0,
-        speed = 200,
+        speed = 260,
         gravity = 400,  -- Strong gravity for challenge
         width = 40,
         height = 30,
