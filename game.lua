@@ -47,6 +47,7 @@ function Game:new()
         troll_base_speed = 200,
         -- collectible coins that must be gathered to advance
         field_coins = {},
+        coin_pool = {},
         coin_spawn_timer = 0,
         coin_spawn_interval = 12.0,
         coin_lifetime = 20.0,
@@ -61,7 +62,8 @@ function Game:new()
     obj.sun_x = obj.width / 2
 
     -- Create background canvas
-    obj.background_canvas = love.graphics.newCanvas(obj.width, obj.height)
+            quiz_result_duration = 1.5,
+            quiz_time_limit = 20,
     love.graphics.setCanvas(obj.background_canvas)
 
     -- Draw rainbow background
@@ -79,48 +81,7 @@ function Game:new()
         love.graphics.arc('fill', obj.width / 2, obj.height, (8 - i) * 50, math.pi, 2 * math.pi)
     end
 
-    -- Coin spawning and collection
-    self.coin_spawn_timer = self.coin_spawn_timer + dt
-    if self.coin_spawn_timer >= self.coin_spawn_interval then
-        self.coin_spawn_timer = self.coin_spawn_timer - self.coin_spawn_interval
-        -- spawn a coin at a reachable height near the ground
-        local cx = math.random(40, self.width - 40)
-        local cy = math.random(self.ground - 140, self.ground - 40)
-        table.insert(self.field_coins, {x = cx, y = cy, t = self.coin_lifetime})
-    end
-
-    -- update coins lifetimes and check for collection
-    local k = 1
-    while k <= #self.field_coins do
-        local fc = self.field_coins[k]
-        fc.t = fc.t - dt
-        local collected = false
-        if fc.t <= 0 then
-            collected = false
-        else
-            local dx = self.unicorn.x - fc.x
-            local dy = self.unicorn.y - fc.y
-            if math.sqrt(dx*dx + dy*dy) < (self.coin_radius + 24) then
-                collected = true
-            end
-        end
-        if collected then
-            -- collected: increment progress and bank coins
-            self.progress_coins = self.progress_coins + 1
-            self.coins = self.coins + 10
-            self.extra_life_msg = "+10 coins"
-            self.extra_life_msg_timer = 1.2
-            -- remove coin
-            self.field_coins[k] = self.field_coins[#self.field_coins]
-            table.remove(self.field_coins)
-        elseif fc.t <= 0 then
-            -- expired, remove
-            self.field_coins[k] = self.field_coins[#self.field_coins]
-            table.remove(self.field_coins)
-        else
-            k = k + 1
-        end
-    end
+    
 
     -- Draw sun
     love.graphics.setColor(1, 1, 0)
@@ -193,24 +154,103 @@ function Game:addTroll(x, y, speed)
     table.insert(self.trolls, {troll = troll, active = true})
 end
 
+function Game:updateTrolls(dt)
+    -- Update trolls
+    self:updateTrolls(dt)
+end
+
+function Game:spawnFieldCoin()
+    local cx = math.random(40, self.width - 40)
+    local cy = math.random(self.ground - 140, self.ground - 40)
+    local coin
+    if #self.coin_pool > 0 then
+        coin = table.remove(self.coin_pool)
+        coin.x = cx; coin.y = cy; coin.t = self.coin_lifetime
+    else
+        coin = {x = cx, y = cy, t = self.coin_lifetime}
+    end
+    table.insert(self.field_coins, coin)
+end
+
+function Game:updateFieldCoins(dt)
+    -- spawn
+    self.coin_spawn_timer = (self.coin_spawn_timer or 0) + dt
+    if self.coin_spawn_timer >= self.coin_spawn_interval then
+        self.coin_spawn_timer = self.coin_spawn_timer - self.coin_spawn_interval
+        self:spawnFieldCoin()
+    end
+
+    -- update and collect using swap-remove
+    local k = 1
+    while k <= #self.field_coins do
+        local fc = self.field_coins[k]
+        fc.t = fc.t - dt
+        local collected = false
+        if fc.t > 0 then
+            local dx = self.unicorn.x - fc.x
+            local dy = self.unicorn.y - fc.y
+            if (dx*dx + dy*dy) < ((self.coin_radius + 24) * (self.coin_radius + 24)) then
+                collected = true
+            end
+        end
+        if collected then
+            self.progress_coins = self.progress_coins + 1
+            self.coins = self.coins + 10
+            self.extra_life_msg = "+10 coins"
+            self.extra_life_msg_timer = 1.2
+            -- recycle coin
+            table.insert(self.coin_pool, fc)
+            self.field_coins[k] = self.field_coins[#self.field_coins]
+            table.remove(self.field_coins)
+        elseif fc.t <= 0 then
+            -- expired, recycle
+            table.insert(self.coin_pool, fc)
+            self.field_coins[k] = self.field_coins[#self.field_coins]
+            table.remove(self.field_coins)
+        else
+            k = k + 1
+        end
+    end
+end
+
+function Game:handleQuiz(dt)
+    -- If a quiz result is showing, show countdown for result then resume
+    if self.quiz_result_timer and self.quiz_result_timer > 0 then
+        self.quiz_result_timer = self.quiz_result_timer - dt
+        if self.quiz_result_timer <= 0 then
+            self.quiz_result_timer = 0
+            self.quiz_result_msg = nil
+            -- finish quiz and resume gameplay
+            self.quiz_active = false
+            self.paused = false
+            -- respawn unicorn and add a troll for next stage
+            self.unicorn = require('unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
+            self:addTroll(math.random(0, self.width), -10, 200)
+        end
+        return true
+    end
+
+    -- question active: tick the quiz timer
+    if self.quiz_timer then
+        self.quiz_timer = self.quiz_timer - dt
+        if self.quiz_timer <= 0 then
+            -- timeout -> wrong
+            local msgs = {"Time! Try faster next time.", "Out of time!", "Too slow!"}
+            self.quiz_result_msg = msgs[math.random(#msgs)]
+            self.quiz_result_timer = self.quiz_result_duration
+            -- leave quiz_active true so result handler will clear later
+            return true
+        end
+    end
+    return false
+end
+
 function Game:update(dt)
     if self.game_over then return end
 
-    -- If a quiz is active, don't update gameplay. Only advance the quiz-result timer
+    -- If a quiz is active, let the quiz handler manage timing and results
     if self.quiz_active then
-        if self.quiz_result_timer and self.quiz_result_timer > 0 then
-            self.quiz_result_timer = self.quiz_result_timer - dt
-            if self.quiz_result_timer <= 0 then
-                self.quiz_result_timer = 0
-                self.quiz_result_msg = nil
-                -- finish quiz and resume gameplay
-                self.quiz_active = false
-                self.paused = false
-                -- respawn unicorn and add a troll for next stage
-                self.unicorn = require('unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
-                self:addTroll(math.random(0, self.width), -10, 200)
-            end
-        end
+        self:handleQuiz(dt)
         return
     end
 
@@ -335,6 +375,7 @@ function Game:update(dt)
             self.paused = true
             self.quiz_active = true
             self.quiz_input = ""
+            self.quiz_timer = self.quiz_time_limit
             -- select a problem from the pre-generated list
             local pick = self.next_problem_index
             if pick > #self.problems then pick = math.random(1, #self.problems) end
@@ -379,6 +420,9 @@ function Game:update(dt)
             self:addTroll(sx, -10, speed)
         end
     end
+
+    -- Update field coins (spawning, lifetimes, collection)
+    self:updateFieldCoins(dt)
 end
 
 function Game:draw()
@@ -458,6 +502,13 @@ function Game:draw()
 
         love.graphics.setFont(self.font_small)
         love.graphics.printf(self.quiz_problem or "", 0, self.height/2 - 70, self.width, 'center')
+
+        -- show remaining time
+        if self.quiz_timer then
+            love.graphics.setColor(1, 0.8, 0.6)
+            love.graphics.printf("Time: " .. math.ceil(self.quiz_timer) .. "s", 0, self.height/2 - 50, self.width, 'center')
+            love.graphics.setColor(1,1,1)
+        end
 
         -- input box
         local box_w, box_h = 300, 40
