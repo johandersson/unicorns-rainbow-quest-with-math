@@ -49,7 +49,7 @@ function Game:new()
         quiz_result_msg = nil,
         quiz_result_timer = 0,
         quiz_result_duration = 1.5,
-        quiz_time_limit = 20,
+        quiz_time_limit = 30,
         quiz_show_answer = false,
         quiz_correct_answer = nil,
         problems_file = 'math_problems.txt',

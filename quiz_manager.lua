@@ -7,7 +7,7 @@ function Quiz:new(game)
         game = game,
         problems = {},
         next_index = 1,
-        time_limit = game.quiz_time_limit or 20,
+        time_limit = game.quiz_time_limit or 30,
         result_duration = game.quiz_result_duration or 1.5
     }
     setmetatable(obj, self)
