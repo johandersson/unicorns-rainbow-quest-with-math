@@ -26,7 +26,7 @@ end
 
 function Coin:isCollectedBy(unicorn)
     -- Simple circle-circle collision (works from ANY direction - much more player-friendly)
-    -- Treat unicorn as a circle with generous radius for easy collection
+    -- Treat unicorn as a circle with VERY generous radius for easy collection
     local ux = unicorn.x or 0
     local uy = unicorn.y or 0
     local cx = self.x or 0
@@ -37,9 +37,9 @@ function Coin:isCollectedBy(unicorn)
     local dy = uy - cy
     local dist_sq = dx*dx + dy*dy
     
-    -- Generous collision radius: unicorn effective radius (30) + coin radius + tolerance
-    -- This ensures coins are caught from ANY angle/direction
-    local collision_radius = 30 + self.radius + 8
+    -- VERY generous collision radius for player-friendly gameplay
+    -- Unicorn effective radius (45) + coin radius (18) + tolerance (15) = 78 pixels total
+    local collision_radius = 45 + self.radius + 15
     local collision_radius_sq = collision_radius * collision_radius
     
     return dist_sq <= collision_radius_sq

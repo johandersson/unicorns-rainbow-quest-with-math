@@ -22,6 +22,7 @@ return {
     quiz_title = "Matteutmaning!",
     time_label = "Tid: %ds",
     quiz_hint = "Skriv svaret och tryck Enter. +100 mynt vid rätt svar.",
+    correct_answer_label = "Det rätta svaret var:",
     quiz_correct_msgs = {"Rätt! +100 mynt", "Bra! +100 mynt", "Korrekt! +100 mynt"},
     quiz_wrong_msgs = {"Oj! Inte rätt.", "Nästan, försök igen.", "Fel — prova igen."},
     timeout_msgs = {"Tiden slut! Försök snabbare.", "Förlorad tid!", "För långsamt!"}

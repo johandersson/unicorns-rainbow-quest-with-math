@@ -30,8 +30,9 @@ function Game:new()
         death_timer = 0,
         respawn_delay = 1.2,
         flash_alpha = 0,
-        -- Extra life settings
-        extra_life_cost = 200,
+        -- Extra life settings (starts easy, gets progressively harder)
+        extra_life_base_cost = 250,
+        extra_life_cost = 250,
         extra_life_msg = nil,
         extra_life_msg_timer = 0,
         extra_life_msg_duration = 1.5,
@@ -68,7 +69,7 @@ function Game:new()
         coin_pool = {},
         coin_spawn_timer = 0,
         coin_spawn_interval = 12.0,
-        coin_lifetime = 20.0,
+        coin_lifetime = 30.0,  -- Increased lifetime so coins stay longer
         coin_radius = 18,
         coins_to_advance = 3,
         progress_coins = 0,
@@ -146,7 +147,8 @@ function Game:new()
         respawning = obj.L.respawning or "Respawning...",
         quiz_title = obj.L.quiz_title or "Math Challenge!",
         time_label = obj.L.time_label or "Time: %ds",
-        quiz_hint = obj.L.quiz_hint or "Type the answer and press Enter. +100 coins for correct."
+        quiz_hint = obj.L.quiz_hint or "Type the answer and press Enter. +100 coins for correct.",
+        correct_answer_label = obj.L.correct_answer_label or "The correct answer was:"
     }
 
     return obj
@@ -371,8 +373,8 @@ function Game:update(dt)
 
     -- Check if reached the sun (sun hits required to level up)
     if self.unicorn.y < self.sun_y + 40 and math.abs(self.unicorn.x - self.sun_x) < 40 then
-        -- reward smaller coin per hit, require multiple hits for next stage
-        self.coins = self.coins + 10
+        -- Small reward per sun hit (reduced to prevent easy coin farming)
+        self.coins = self.coins + 3
         self.sun_hits = self.sun_hits + 1
 
         -- award extra lives if coins exceed threshold (compute in one step)
@@ -398,6 +400,9 @@ function Game:update(dt)
             -- increase next requirement progressively
             self.sun_hits_required = math.ceil(3 + (self.stage - 1) * 0.75)
             self.coins_to_advance = 3 + math.floor(self.stage / 3)
+            
+            -- Make extra lives progressively more expensive (increases 75 coins per stage)
+            self.extra_life_cost = self.extra_life_base_cost + (self.stage - 1) * 75
 
             -- spawn a few trolls to mark the new stage
             local spawn_count = math.min(1 + math.floor(self.stage / 2), 6)
@@ -603,7 +608,7 @@ function Game:draw()
         if self.quiz_show_answer and self.quiz_correct_answer then
             love.graphics.setFont(self.font_small)
             love.graphics.setColor(1, 1, 0.6)
-            love.graphics.printf("The correct answer was:", result_x, result_y + 80, result_w, 'center')
+            love.graphics.printf(self._locale_cache.correct_answer_label, result_x, result_y + 80, result_w, 'center')
             
             love.graphics.setFont(self.font_large)
             love.graphics.setColor(1, 1, 1)
@@ -709,12 +714,12 @@ function Game:keypressed(key)
             if entered and self.quiz_answer and entered == self.quiz_answer then
                 -- correct
                 self.coins = self.coins + 100
-                local msgs = {"Nice! Math wizard! +100 coins","Boom! Brain power rewarded! +100 coins","Correct! You're unstoppable! +100 coins"}
+                local msgs = self.L.quiz_correct_msgs or {"Nice! Math wizard! +100 coins","Boom! Brain power rewarded! +100 coins","Correct! You're unstoppable! +100 coins"}
                 self.quiz_result_msg = msgs[math.random(#msgs)]
                 self.quiz_show_answer = false
             else
                 -- wrong - show correct answer
-                local msgs = {"Oops! Not quite.", "Close, but no cookie.", "Nope — better luck next time."}
+                local msgs = self.L.quiz_wrong_msgs or {"Oops! Not quite.", "Close, but no cookie.", "Nope — better luck next time."}
                 self.quiz_result_msg = msgs[math.random(#msgs)]
                 self.quiz_show_answer = true
                 self.quiz_correct_answer = self.quiz_answer
