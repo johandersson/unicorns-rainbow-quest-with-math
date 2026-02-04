@@ -25,30 +25,24 @@ function Coin:update(dt)
 end
 
 function Coin:isCollectedBy(unicorn)
-    -- Optimized circle-rectangle collision (cache calculations, early exit)
+    -- Simple circle-circle collision (works from ANY direction - much more player-friendly)
+    -- Treat unicorn as a circle with generous radius for easy collection
     local ux = unicorn.x or 0
     local uy = unicorn.y or 0
-    
-    -- Pre-calculate half dimensions (avoid repeated division)
-    local half_uw = (unicorn.width or 0) * 0.5
-    local half_uh = (unicorn.height or 0) * 0.5
-    local left = ux - half_uw
-    local right = ux + half_uw
-    local top = uy - half_uh
-    local bottom = uy + half_uh
-
     local cx = self.x or 0
     local cy = self.y or 0
     
-    -- Find closest point on rectangle to circle center
-    local closestX = math.max(left, math.min(cx, right))
-    local closestY = math.max(top, math.min(cy, bottom))
-    local dx = cx - closestX
-    local dy = cy - closestY
+    -- Calculate squared distance between centers
+    local dx = ux - cx
+    local dy = uy - cy
+    local dist_sq = dx*dx + dy*dy
     
-    -- Squared distance comparison (avoid sqrt, pre-calculate squared radius)
-    local r_tol = self.radius + 1
-    return (dx*dx + dy*dy) <= (r_tol * r_tol)
+    -- Generous collision radius: unicorn effective radius (30) + coin radius + tolerance
+    -- This ensures coins are caught from ANY angle/direction
+    local collision_radius = 30 + self.radius + 8
+    local collision_radius_sq = collision_radius * collision_radius
+    
+    return dist_sq <= collision_radius_sq
 end
 
 function Coin:draw()
