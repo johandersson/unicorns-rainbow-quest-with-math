@@ -17,7 +17,16 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    if key == 'f11' then
+    if key == 'f12' then
+        -- Create screenshots directory if it doesn't exist
+        local success = love.filesystem.createDirectory('screenshots')
+        if success then
+            local timestamp = os.date("%Y%m%d_%H%M%S")
+            local filename = string.format("screenshots/screenshot_%s.png", timestamp)
+            love.graphics.captureScreenshot(filename)
+            print("Screenshot saved: " .. filename)
+        end
+    elseif key == 'f11' then
         love.window.setFullscreen(true)
     elseif key == 'escape' then
         local result = love.window.showMessageBox("Exit", "Do you want to exit?", {"Yes", "No"}, "info", true)

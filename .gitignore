@@ -21,6 +21,9 @@ dist/
 # Temp
 *.tmp
 
+# Screenshots (auto-generated, not committed - use images/ for documentation)
+screenshots/
+
 # Downloaded files (e.g., luarocks zip)
 luarocks.zip
 luarocks/

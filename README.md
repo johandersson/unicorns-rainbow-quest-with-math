@@ -2,6 +2,20 @@
 
 Unicorn Flight is a charming, educational LÖVE game that teaches basic arithmetic while delivering light, arcade-style action. Guide your unicorn skyward, collect coins, avoid trolls, and solve short math challenges to progress — perfect for unicorn lovers of ages 7–9. Features Swedish localization and retro-style dialog boxes.
 
+## Screenshots
+
+<p align="center">
+  <img src="images/welcome-screen.png" width="400" alt="Welcome Screen">
+  <img src="images/gameplay.png" width="400" alt="Gameplay">
+</p>
+<p align="center">
+  <img src="images/gameplay-coins.png" width="400" alt="Collecting Coins">
+  <img src="images/quiz-dialog.png" width="400" alt="Math Quiz Dialog">
+</p>
+<p align="center">
+  <img src="images/quiz-result.png" width="400" alt="Quiz Result">
+</p>
+
 ## Gameplay
 
 - Fly the unicorn upward using the UP arrow key and navigate with LEFT/RIGHT arrows.
