@@ -29,6 +29,7 @@ return {
     timeout_msgs = {"Tiden slut! Försök snabbare.", "Förlorad tid!", "För långsamt!"},
 
     -- Scoreboard
+    highscore_board = "Topplista",
     enter_name_title = "Välkommen!",
     enter_name_prompt = "Ange ditt namn:",
     select_player_prompt = "Välj spelare eller skriv nytt namn:",

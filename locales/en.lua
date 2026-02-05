@@ -28,6 +28,7 @@ return {
     timeout_msgs = {"Time! Try faster next time.", "Out of time!", "Too slow!"},
 
     -- Scoreboard
+    highscore_board = "High Scores",
     enter_name_title = "Welcome!",
     enter_name_prompt = "Enter your name:",
     select_player_prompt = "Select player or enter new name:",

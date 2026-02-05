@@ -157,18 +157,56 @@ function UIManager:drawPauseOverlay()
     love.graphics.printf(self._locale_cache.paused_msg or self.L.paused_msg, 0, self.height/2 - 20, self.width, 'center')
 end
 
-function UIManager:drawWelcomeScreen()
+function UIManager:drawWelcomeScreen(top_scores, welcome_scroll_offset)
     love.graphics.setColor(0, 0, 0, 0.7)
     love.graphics.rectangle('fill', 0, 0, self.width, self.height)
+    
+    -- Title and instructions at top
     love.graphics.setFont(self.font_large)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.printf(self._locale_cache.enter_name_title or self.L.welcome_title, 0, self.height/2 - 80, self.width, 'center')
+    love.graphics.printf(self._locale_cache.enter_name_title or self.L.welcome_title, 0, 40, self.width, 'center')
     love.graphics.setFont(self.font_small)
     love.graphics.setColor(0.9, 0.9, 0.9)
-    love.graphics.printf(self.L.welcome_desc, 0, self.height/2 - 40, self.width, 'center')
-    love.graphics.printf(self.L.controls, 0, self.height/2 - 10, self.width, 'center')
+    love.graphics.printf(self.L.welcome_desc, 0, 90, self.width, 'center')
+    love.graphics.printf(self.L.controls, 0, 120, self.width, 'center')
+    
+    -- High scores board in the middle
+    if top_scores and #top_scores > 0 then
+        local board_y = 160
+        local board_h = self.height - 260  -- Leave space for start message
+        local max_visible = math.floor(board_h / 24)
+        
+        love.graphics.setColor(1, 0.84, 0)
+        love.graphics.printf(self.L.highscore_board or "High Scores", 0, board_y, self.width, 'center')
+        
+        -- Scrollable scores list
+        local start_idx = math.max(1, welcome_scroll_offset or 0)
+        local end_idx = math.min(#top_scores, start_idx + max_visible - 1)
+        
+        local y = board_y + 30
+        for i = start_idx, end_idx do
+            local score_data = top_scores[i]
+            love.graphics.setColor(i <= 3 and {1, 0.84, 0} or {0.9, 0.9, 0.9})
+            local medal = i == 1 and "🥇 " or (i == 2 and "🥈 " or (i == 3 and "🥉 " or ""))
+            local text = string.format("%s#%d  %s - %d", medal, i, score_data.name, score_data.highscore)
+            love.graphics.printf(text, 0, y, self.width, 'center')
+            y = y + 24
+        end
+        
+        -- Scroll indicators
+        if start_idx > 1 then
+            love.graphics.setColor(1, 1, 0, 0.7)
+            love.graphics.printf("▲ More above", 0, board_y + 25, self.width, 'center')
+        end
+        if end_idx < #top_scores then
+            love.graphics.setColor(1, 1, 0, 0.7)
+            love.graphics.printf("▼ More below", 0, y, self.width, 'center')
+        end
+    end
+    
+    -- Start instruction at bottom
     love.graphics.setColor(1, 1, 0)
-    love.graphics.printf(self.L.press_start, 0, self.height/2 + 30, self.width, 'center')
+    love.graphics.printf(self.L.press_start, 0, self.height - 80, self.width, 'center')
 end
 
 function UIManager:drawNameInputScreen(name_input, player_names, selected_index, dialog_renderer)

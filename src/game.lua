@@ -45,7 +45,8 @@ function Game:new()
         name_input = "",
         name_input_active = true,
         selected_player_index = 1,
-        show_highscore_celebration = false
+        show_highscore_celebration = false,
+        welcome_scroll_offset = 1  -- For scrolling high scores on welcome screen
     }
     obj.ground = obj.height - 50
     obj.sun_x = obj.width / 2
@@ -333,7 +334,8 @@ function Game:draw()
 
     -- Welcome screen overlay (shown after name input)
     if self.stateManager.show_welcome and not self.name_input_active then
-        self.uiManager:drawWelcomeScreen()
+        local top_scores = self.scoreboardManager:getTopScores(20)  -- Get top 20 for scrolling
+        self.uiManager:drawWelcomeScreen(top_scores, self.welcome_scroll_offset)
     end
     
     -- Help and settings dialogs (drawn last, on top of everything)
