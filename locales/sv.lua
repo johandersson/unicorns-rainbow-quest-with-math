@@ -1,5 +1,5 @@
 return {
-    welcome_title = "Välkommen till Unicornen flyger och räknar matte!",
+    welcome_title = "Rainbow Quest - Enhörningsflygning med Matte",
     welcome_desc = "Samla mynt, nå solen och lös mattetal.",
     controls = "Kontroller: Piltangenter för rörelse, Upp för att flyga, P för paus.",
     press_start = "Tryck Enter eller Mellanslag för att starta",
@@ -38,7 +38,7 @@ return {
     highscore_label = "Rekord: %d",
     
     -- High score celebration messages
-    new_highscore_title = "🌟 NYTT REKORD! 🌟",
+    new_highscore_title = " NYTT REKORD! ",
     new_highscore_msgs = {
         "FANTASTISKT! Du slog ditt rekord!",
         "GRATTIS! Nytt personbästa!",
@@ -49,7 +49,7 @@ return {
     rank_msg = "Du rankas #%d av %d spelare!",
     
     -- Help Dialog
-    help_title = "🦄 Hjälp & Guide 🦄",
+    help_title = " Hjälp & Guide ",
     help_content = {
         "Välkommen till Rainbow Quest!",
         "",
@@ -85,7 +85,7 @@ return {
         "Mattetalen blir svårare ju högre nivå.",
         "Håll koll på trollen - de blir snabbare!",
         "",
-        "Ha så kul och lycka till! 🌟"
+        "Ha så kul och lycka till!"
     },
     help_copyright = "© 2026 Johan Andersson | Licens: GPL-3.0",
     help_close = "Tryck ESC eller F1 för att stänga",

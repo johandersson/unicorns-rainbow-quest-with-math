@@ -1,5 +1,5 @@
 --[[
-  Rainbow Quest - Unicorn Flight
+  Rainbow Quest - Unicorn Flight with Math
   Copyright (C) 2026 Johan Andersson
 
   This program is free software: you can redistribute it and/or modify
@@ -29,6 +29,7 @@ function Game:new()
         sun_x = 0,
         sun_y = 50,
         troll_spawn_timer = 0,
+        sun_just_touched = false,  -- Prevent continuous sun triggering
         -- Quiz / math problem fields
         quiz_active = false,
         quiz_input = "",
@@ -158,8 +159,11 @@ function Game:update(dt)
         self.trollManager:update(dt)
     end
 
-    -- Check if reached the sun
-    if self.unicorn.y < self.sun_y + 40 and math.abs(self.unicorn.x - self.sun_x) < 40 then
+    -- Check if reached the sun (trigger once per pass)
+    local touching_sun = self.unicorn.y < self.sun_y + 40 and math.abs(self.unicorn.x - self.sun_x) < 40
+    
+    if touching_sun and not self.sun_just_touched then
+        self.sun_just_touched = true
         self.progressionSystem:addCoins(3)
         self.scoreboardManager:addScore(3) -- Add to session score
         self.progressionSystem:incrementSunHits()
@@ -214,6 +218,9 @@ function Game:update(dt)
             local msgfmt = (self.L and self.L.collect_more) or "Collect %d more coins to level up"
             self.stateManager:showMessage(msgfmt:format(remaining), 2.0)
         end
+    elseif not touching_sun then
+        -- Reset flag when unicorn leaves sun area
+        self.sun_just_touched = false
     end
 
     -- Periodic troll spawning
@@ -270,7 +277,7 @@ function Game:draw()
     if self.show_highscore_celebration then
         local msgs = self.L.new_highscore_msgs or {"AMAZING! You beat your record!"}
         local score_data = {
-            title = self.L.new_highscore_title or "🌟 NEW HIGH SCORE! 🌟",
+            title = self.L.new_highscore_title or " NEW HIGH SCORE! ",
             message = msgs[math.random(#msgs)],
             detail = (self.L.highscore_detail or "Previous: %d → New: %d"):format(
                 self.scoreboardManager:getPreviousHighscore(),
@@ -306,7 +313,8 @@ function Game:draw()
         local quiz_data = {
             problem = self.quiz_problem,
             timer = self.quiz_timer,
-            input = self.quiz_input
+            input = self.quiz_input,
+            visual_type = self.quiz_visual_type
         }
         self.dialogRenderer:drawQuizOverlay(quiz_data, self.uiManager._locale_cache, self.uiManager.font_large, self.uiManager.font_small)
     end

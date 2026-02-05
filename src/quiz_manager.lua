@@ -1,5 +1,5 @@
 --[[
-  Rainbow Quest - Unicorn Flight
+  Rainbow Quest - Unicorn Flight with Math
   Copyright (C) 2026 Johan Andersson
 
   This program is free software: you can redistribute it and/or modify
@@ -17,6 +17,7 @@
 --]]
 
 -- quiz_manager.lua
+-- Manages math problems with progressive difficulty and variety
 local Quiz = {}
 Quiz.__index = Quiz
 
@@ -36,26 +37,148 @@ end
 function Quiz:generateProblems(n)
     math.randomseed(os.time())
     local n_max = math.max(1, n)
+    
     for i = 1, n do
-        -- Pre-calculate fraction to avoid repeated division
-        local frac = i / n_max
-        local maxv = math.min(20 + math.floor(frac * 80), 100)
-        maxv = math.max(10, maxv)
+        -- Calculate difficulty progression (0.0 to 1.0)
+        local progress = i / n_max
+        local stage_equiv = math.floor(progress * 10) + 1  -- Simulate stages 1-10
         
-        local ptype_roll = math.random()
-        if ptype_roll < 0.03 then
-            local a = math.random(1, maxv)
-            local x_max = math.min(20, maxv)
-            local x = math.random(1, x_max)
-            local c = a + x
-            table.insert(self.problems, {q = string.format("%d + X = %d", a, c), a = x, type = 'missing'})
+        -- Determine problem type distribution
+        local type_roll = math.random()
+        
+        if type_roll < 0.15 then
+            -- 15% Number sequences (easy ones for variety)
+            self:addSequenceProblem(stage_equiv)
+        elseif type_roll < 0.20 and stage_equiv >= 4 then
+            -- 5% Missing variable problems (X+a=c) for stages 4+
+            self:addMissingVariableProblem(stage_equiv)
+        elseif type_roll < 0.35 and stage_equiv >= 4 then
+            -- 15% Subtraction for stages 4+
+            self:addSubtractionProblem(stage_equiv)
         else
-            local a = math.random(1, maxv)
-            local b_max = math.min(maxv, 100)
-            local b = math.random(1, b_max)
-            table.insert(self.problems, {q = string.format("%d + %d", a, b), a = a + b, type = 'normal'})
+            -- Remaining: Addition problems
+            self:addAdditionProblem(stage_equiv)
         end
     end
+end
+
+-- Simple number sequences like 1,3,5,7,?
+function Quiz:addSequenceProblem(stage)
+    local sequences = {
+        -- Easy sequences (stages 1-3)
+        {start=1, step=2, length=5},   -- 1,3,5,7,?=9
+        {start=2, step=2, length=5},   -- 2,4,6,8,?=10
+        {start=0, step=5, length=5},   -- 0,5,10,15,?=20
+        {start=1, step=1, length=5},   -- 1,2,3,4,?=5
+        -- Medium sequences (stages 4-6)
+        {start=3, step=3, length=5},   -- 3,6,9,12,?=15
+        {start=10, step=10, length=4}, -- 10,20,30,?=40
+        {start=5, step=5, length=5},   -- 5,10,15,20,?=25
+    }
+    
+    local seq_idx = stage <= 3 and math.random(1, 4) or math.random(1, #sequences)
+    local seq = sequences[seq_idx]
+    
+    -- Build the sequence
+    local nums = {}
+    for i = 1, seq.length do
+        table.insert(nums, seq.start + (i - 1) * seq.step)
+    end
+    
+    local answer = nums[#nums]
+    table.remove(nums) -- Remove last for the question
+    
+    -- Format as visual number line: _1_ _3_ _5_ _7_ _?_
+    local question = ""
+    for _, num in ipairs(nums) do
+        question = question .. " " .. num .. " "
+    end
+    question = question .. " ?"
+    
+    table.insert(self.problems, {
+        q = question,
+        a = answer,
+        type = 'sequence',
+        visualType = 'numberline'
+    })
+end
+
+-- Addition problems with difficulty scaling
+function Quiz:addAdditionProblem(stage)
+    local a, b
+    
+    if stage <= 2 then
+        -- Stages 1-2: Mostly single digit (X + X)
+        if math.random() < 0.8 then
+            a = math.random(1, 9)
+            b = math.random(1, 9)
+        else
+            a = math.random(1, 9)
+            b = math.random(10, 15)
+        end
+    elseif stage <= 4 then
+        -- Stages 3-4: Mix of single and small double digit
+        if math.random() < 0.5 then
+            a = math.random(1, 9)
+            b = math.random(1, 9)
+        else
+            a = math.random(5, 15)
+            b = math.random(5, 15)
+        end
+    else
+        -- Stages 5+: Larger numbers
+        local maxv = math.min(20 + (stage - 5) * 15, 80)
+        a = math.random(1, maxv)
+        b = math.random(1, maxv)
+    end
+    
+    table.insert(self.problems, {
+        q = string.format("%d + %d", a, b),
+        a = a + b,
+        type = 'addition'
+    })
+end
+
+-- Subtraction problems (stage 4+)
+function Quiz:addSubtractionProblem(stage)
+    local a, b
+    
+    if stage <= 5 then
+        -- Stages 4-5: Simple subtraction with positive results
+        a = math.random(10, 25)
+        b = math.random(1, a - 1)  -- Ensure positive result
+    else
+        -- Stages 6+: Can include negative results (harder!)
+        a = math.random(5, 30)
+        b = math.random(1, 40)  -- Can result in negative
+    end
+    
+    table.insert(self.problems, {
+        q = string.format("%d - %d", a, b),
+        a = a - b,
+        type = 'subtraction'
+    })
+end
+
+-- Missing variable problems like X + 4 = 10 (stage 4+)
+function Quiz:addMissingVariableProblem(stage)
+    local x, a
+    
+    if stage <= 5 then
+        x = math.random(1, 15)
+        a = math.random(1, 10)
+    else
+        x = math.random(1, 25)
+        a = math.random(5, 20)
+    end
+    
+    local c = a + x
+    
+    table.insert(self.problems, {
+        q = string.format("X + %d = %d", a, c),
+        a = x,
+        type = 'missing_variable'
+    })
 end
 
 function Quiz:start()
@@ -64,6 +187,8 @@ function Quiz:start()
     local prob = self.problems[pick]
     self.game.quiz_problem = prob.q
     self.game.quiz_answer = prob.a
+    self.game.quiz_type = prob.type
+    self.game.quiz_visual_type = prob.visualType
     self.game.quiz_input = ""
     self.game.quiz_active = true
     self.game.stateManager.paused = true

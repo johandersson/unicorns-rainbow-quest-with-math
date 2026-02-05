@@ -1,5 +1,5 @@
 --[[
-  Rainbow Quest - Unicorn Flight
+  Rainbow Quest - Unicorn Flight with Math
   Copyright (C) 2026 Johan Andersson
 
   This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,8 @@
 
 -- ui_manager.lua
 -- Handles all UI rendering and text caching using memoization
+local IconRenderer = require('src.icon_renderer')
+
 UIManager = {}
 
 function UIManager:new(width, height, locale)
@@ -25,6 +27,7 @@ function UIManager:new(width, height, locale)
         width = width,
         height = height,
         L = locale,
+        iconRenderer = IconRenderer.new(),
         font_large = love.graphics.newFont(20),
         font_small = love.graphics.newFont(14),
         -- Memoization cache for formatted strings
@@ -186,16 +189,23 @@ function UIManager:drawWelcomeScreen(top_scores, welcome_scroll_offset)
         local y = board_y + 30
         for i = start_idx, end_idx do
             local score_data = top_scores[i]
-            love.graphics.setColor(i <= 3 and {1, 0.84, 0} or {0.9, 0.9, 0.9})
-            local medal = i == 1 and "🥇 " or (i == 2 and "🥈 " or (i == 3 and "🥉 " or ""))
+            
+            -- Draw medal icon for top 3
+            if i <= 3 then
+                self.iconRenderer:drawMedalIcon(self.width / 2 - 120, y - 2, i, 16)
+            end
+            
+            local text = string.format("#%d  %s - %d"" or (i == 3 and "🥉 " or ""))
             local text = string.format("%s#%d  %s - %d", medal, i, score_data.name, score_data.highscore)
             love.graphics.printf(text, 0, y, self.width, 'center')
             y = y + 24
+        endself.iconRenderer:drawArrowIcon(self.width / 2 - 60, board_y + 23, "up", 12)
+            love.graphics.printf("More above", 0, board_y + 25, self.width, 'center')
         end
-        
-        -- Scroll indicators
-        if start_idx > 1 then
+        if end_idx < #top_scores then
             love.graphics.setColor(1, 1, 0, 0.7)
+            self.iconRenderer:drawArrowIcon(self.width / 2 - 60, y - 2, "down", 12)
+            love.graphics.printf(", 1, 0, 0.7)
             love.graphics.printf("▲ More above", 0, board_y + 25, self.width, 'center')
         end
         if end_idx < #top_scores then
@@ -250,8 +260,10 @@ function UIManager:drawNameInputScreen(name_input, player_names, selected_index,
                 love.graphics.setLineWidth(1)
             end
             love.graphics.setColor(is_selected and {1, 1, 0} or {0.9, 0.9, 0.9})
-            local marker = is_selected and "▶ " or "  "
-            love.graphics.printf(marker .. name, dialog_x + 35, item_y, dialog_w - 70, 'left')
+            if is_selected then
+                self.iconRenderer:drawArrowIcon(dialog_x + 35, item_y - 2, "right", 12)
+            end
+            love.graphics.printf(name, dialog_x + 55, item_y, dialog_w - 90, 'left')
         end
         
         for i = 1, math.min(max_show, #player_names) do
@@ -307,6 +319,10 @@ function UIManager:drawHighScoreCelebration(score_data, dialog_renderer)
     
     -- Static golden dialog
     dialog_renderer:drawRetroDialog(dialog_x, dialog_y, dialog_w, dialog_h, gold_color, {0.1, 0.05, 0})
+    
+    -- Decorative stars around title
+    self.iconRenderer:drawStarIcon(dialog_x + 50, dialog_y + 22, 24)
+    self.iconRenderer:drawStarIcon(dialog_x + dialog_w - 74, dialog_y + 22, 24)
     
     -- Title in gold
     love.graphics.setFont(self.font_large)

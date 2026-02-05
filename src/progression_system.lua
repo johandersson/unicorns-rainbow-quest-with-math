@@ -1,5 +1,5 @@
 --[[
-  Rainbow Quest - Unicorn Flight
+  Rainbow Quest - Unicorn Flight with Math
   Copyright (C) 2026 Johan Andersson
 
   This program is free software: you can redistribute it and/or modify

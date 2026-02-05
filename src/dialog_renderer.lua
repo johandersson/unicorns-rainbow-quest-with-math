@@ -1,5 +1,5 @@
 --[[
-  Rainbow Quest - Unicorn Flight
+  Rainbow Quest - Unicorn Flight with Math
   Copyright (C) 2026 Johan Andersson
 
   This program is free software: you can redistribute it and/or modify
@@ -73,10 +73,48 @@ function DialogRenderer:drawQuizOverlay(quiz_data, locale_cache, font_large, fon
     love.graphics.setColor(1, 1, 0.3)
     love.graphics.printf(locale_cache.quiz_title, dialog_x, dialog_y + 20, dialog_w, 'center')
     
-    -- Problem text
+    -- Problem text (with special rendering for sequences)
     love.graphics.setFont(font_large)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.printf(quiz_data.problem or "", dialog_x, dialog_y + 60, dialog_w, 'center')
+    
+    if quiz_data.visual_type == 'numberline' then
+        -- Draw visual number line for sequences
+        local numbers = {}
+        for num in string.gmatch(quiz_data.problem or "", "%S+") do
+            table.insert(numbers, num)
+        end
+        
+        local box_size = 40
+        local spacing = 10
+        local total_width = #numbers * box_size + (#numbers - 1) * spacing
+        local start_x = dialog_x + (dialog_w - total_width) / 2
+        local y = dialog_y + 55
+        
+        for i, num in ipairs(numbers) do
+            local x = start_x + (i - 1) * (box_size + spacing)
+            
+            -- Draw box
+            if num == "?" then
+                love.graphics.setColor(1, 0.8, 0.2, 0.3)
+                love.graphics.rectangle('fill', x, y, box_size, box_size)
+                love.graphics.setColor(1, 1, 0.3)
+            else
+                love.graphics.setColor(0.2, 0.5, 0.8, 0.3)
+                love.graphics.rectangle('fill', x, y, box_size, box_size)
+                love.graphics.setColor(0.5, 0.9, 1)
+            end
+            love.graphics.setLineWidth(2)
+            love.graphics.rectangle('line', x, y, box_size, box_size)
+            
+            -- Draw number
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.printf(num, x, y + 10, box_size, 'center')
+        end
+        love.graphics.setLineWidth(1)
+    else
+        -- Regular problem display
+        love.graphics.printf(quiz_data.problem or "", dialog_x, dialog_y + 60, dialog_w, 'center')
+    end
     
     -- Timer
     if quiz_data.timer then

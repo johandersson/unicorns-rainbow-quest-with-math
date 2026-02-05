@@ -1,5 +1,5 @@
 --[[
-  Rainbow Quest - Unicorn Flight
+  Rainbow Quest - Unicorn Flight with Math
   Copyright (C) 2026 Johan Andersson
 
   This program is free software: you can redistribute it and/or modify
@@ -16,12 +16,15 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 --]]
 
+local IconRenderer = require('src.icon_renderer')
+
 local SettingsManager = {}
 SettingsManager.__index = SettingsManager
 
 function SettingsManager.new(game)
     local self = setmetatable({}, SettingsManager)
     self.game = game
+    self.iconRenderer = IconRenderer.new()
     self.isVisible = false
     self.selectedOption = 1 -- 1 = language
     self.settingsFile = "settings.txt"
@@ -162,7 +165,9 @@ function SettingsManager:draw()
     -- Swedish option
     if self.game.currentLanguage == "sv" then
         love.graphics.setColor(1, 0.84, 0, 1)
-        love.graphics.printf("◀ " .. locale.settings_language_sv .. " ▶", dialogX + 40, optionY, dialogW - 80, "center")
+        self.iconRenderer:drawArrowIcon(dialogX + dialogW / 2 - 80, optionY - 2, "left", 12)
+        love.graphics.printf(locale.settings_language_sv, dialogX + 40, optionY, dialogW - 80, "center")
+        self.iconRenderer:drawArrowIcon(dialogX + dialogW / 2 + 65, optionY - 2, "right", 12)
     else
         love.graphics.setColor(0.5, 0.5, 0.5, 1)
         love.graphics.printf(locale.settings_language_sv, dialogX + 40, optionY, dialogW - 80, "center")
@@ -172,7 +177,9 @@ function SettingsManager:draw()
     optionY = optionY + optionSpacing
     if self.game.currentLanguage == "en" then
         love.graphics.setColor(1, 0.84, 0, 1)
-        love.graphics.printf("◀ " .. locale.settings_language_en .. " ▶", dialogX + 40, optionY, dialogW - 80, "center")
+        self.iconRenderer:drawArrowIcon(dialogX + dialogW / 2 - 80, optionY - 2, "left", 12)
+        love.graphics.printf(locale.settings_language_en, dialogX + 40, optionY, dialogW - 80, "center")
+        self.iconRenderer:drawArrowIcon(dialogX + dialogW / 2 + 65, optionY - 2, "right", 12)
     else
         love.graphics.setColor(0.5, 0.5, 0.5, 1)
         love.graphics.printf(locale.settings_language_en, dialogX + 40, optionY, dialogW - 80, "center")

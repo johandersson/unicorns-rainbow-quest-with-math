@@ -1,5 +1,5 @@
 --[[
-  Rainbow Quest - Unicorn Flight
+  Rainbow Quest - Unicorn Flight with Math
   Copyright (C) 2026 Johan Andersson
 
   This program is free software: you can redistribute it and/or modify
@@ -16,12 +16,15 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 --]]
 
+local IconRenderer = require('src.icon_renderer')
+
 local HelpManager = {}
 HelpManager.__index = HelpManager
 
 function HelpManager.new(game)
     local self = setmetatable({}, HelpManager)
     self.game = game
+    self.iconRenderer = IconRenderer.new()
     self.isVisible = false
     self.scrollOffset = 0
     self.maxScroll = 0
@@ -126,9 +129,11 @@ function HelpManager:draw()
     love.graphics.setColor(0.15, 0.1, 0.25, 0.95)
     love.graphics.rectangle("fill", dialogX, dialogY, dialogW, dialogH)
     
-    -- Title
+    -- Title with unicorn icons
     love.graphics.setColor(1, 0.84, 0, 1)
+    self.iconRenderer:drawUnicornIcon(dialogX + dialogW / 2 - 100, dialogY + 18, 20)
     love.graphics.printf(locale.help_title, dialogX, dialogY + 20, dialogW, "center")
+    self.iconRenderer:drawUnicornIcon(dialogX + dialogW / 2 + 80, dialogY + 18, 20)
     
     -- Scrollable content area
     local contentX = dialogX + 40
@@ -162,12 +167,14 @@ function HelpManager:draw()
     -- Scroll indicators
     if self.scrollOffset > 0 then
         love.graphics.setColor(1, 0.84, 0, 0.8)
-        love.graphics.printf("▲ Scroll Up", contentX, contentY - 25, contentW, "center")
+        self.iconRenderer:drawArrowIcon(contentX + contentW / 2 - 50, contentY - 27, "up", 12)
+        love.graphics.printf("Scroll Up", contentX, contentY - 25, contentW, "center")
     end
     
     if self.scrollOffset < self.maxScroll then
         love.graphics.setColor(1, 0.84, 0, 0.8)
-        love.graphics.printf("▼ Scroll Down", contentX, contentY + contentH + 5, contentW, "center")
+        self.iconRenderer:drawArrowIcon(contentX + contentW / 2 - 50, contentY + contentH + 3, "down", 12)
+        love.graphics.printf("Scroll Down", contentX, contentY + contentH + 5, contentW, "center")
     end
     
     -- Copyright footer

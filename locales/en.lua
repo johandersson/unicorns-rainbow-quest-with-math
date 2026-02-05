@@ -1,5 +1,5 @@
 return {
-    welcome_title = "Welcome to Rainbow Quest!",
+    welcome_title = "Rainbow Quest - Unicorn Flight with Math",
     welcome_desc = "Collect coins, reach the sun, and solve math challenges.",
     controls = "Controls: Arrow keys to move, Up to fly, P to pause.",
     press_start = "Press Enter or Space to Start",
@@ -37,7 +37,7 @@ return {
     highscore_label = "High Score: %d",
     
     -- High score celebration messages
-    new_highscore_title = "🌟 NEW HIGH SCORE! 🌟",
+    new_highscore_title = " NEW HIGH SCORE! ",
     new_highscore_msgs = {
         "AMAZING! You beat your record!",
         "CONGRATULATIONS! New personal best!",
@@ -48,7 +48,7 @@ return {
     rank_msg = "You rank #%d out of %d players!",
     
     -- Help Dialog
-    help_title = "🦄 Help & Guide 🦄",
+    help_title = " Help & Guide ",
     help_content = {
         "Welcome to Rainbow Quest!",
         "",
@@ -84,7 +84,7 @@ return {
         "Math problems get harder at higher stages.",
         "Watch out for trolls - they get faster!",
         "",
-        "Have fun and good luck! 🌟"
+        "Have fun and good luck!"
     },
     help_copyright = "© 2026 Johan Andersson | License: GPL-3.0",
     help_close = "Press ESC or F1 to close",
