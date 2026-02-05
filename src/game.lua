@@ -42,10 +42,7 @@ function Game:new()
         quiz_time_limit = 30,
         quiz_show_answer = false,
         quiz_correct_answer = nil,
-        problems_file = 'math_problems.txt',
         problems_count = 10000,
-        problems = {},
-        next_problem_index = 1,
         -- Name input state
         name_input = "",
         name_input_active = true,
