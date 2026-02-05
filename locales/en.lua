@@ -6,6 +6,7 @@ return {
 
     paused_msg = "Paused - press P to resume",
 
+    player_label = "Player: %s",
     coins_label = "Coins: %d",
     stage_label = "Stage: %d (need: %d)",
     lives_label = "Lives: %d",

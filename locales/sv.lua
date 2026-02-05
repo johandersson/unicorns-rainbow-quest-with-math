@@ -6,6 +6,7 @@ return {
 
     paused_msg = "Pausad - tryck P för att återuppta",
 
+    player_label = "Spelare: %s",
     coins_label = "Mynt: %d",
     stage_label = "Nivå: %d (behöver: %d)",
     lives_label = "Liv: %d",

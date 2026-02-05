@@ -35,12 +35,15 @@ function TrollManager:new(game)
 end
 
 function TrollManager:add(x, y, speed)
+    -- Ensure speed has a valid value
+    local troll_speed = speed or self.base_speed or 200
+    
     local troll
     if #self.pool > 0 then
         troll = table.remove(self.pool)
-        troll:reset(x, y, speed)
+        troll:reset(x, y, troll_speed)
     else
-        troll = Troll:new(x, y, speed)
+        troll = Troll:new(x, y, troll_speed)
     end
     troll.target = self.game.unicorn
     table.insert(self.trolls, {troll = troll, active = true})

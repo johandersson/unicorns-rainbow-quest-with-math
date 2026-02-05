@@ -261,7 +261,8 @@ function Game:draw()
         self.coinManager:getProgress(),
         self.progressionSystem.coins_to_advance,
         self.scoreboardManager:getCurrentScore(),
-        self.scoreboardManager:getPreviousHighscore()
+        self.scoreboardManager:getPreviousHighscore(),
+        self.scoreboardManager:getCurrentPlayer()
     )
 
     -- High score celebration (shown before game over message)
@@ -400,9 +401,13 @@ function Game:keypressed(key)
         if #player_names > 0 then
             if key == 'up' then
                 self.selected_player_index = math.max(1, self.selected_player_index - 1)
+                -- Clear input when navigating list
+                self.name_input = ""
                 return
             elseif key == 'down' then
                 self.selected_player_index = math.min(#player_names, self.selected_player_index + 1)
+                -- Clear input when navigating list
+                self.name_input = ""
                 return
             end
         end
@@ -411,8 +416,10 @@ function Game:keypressed(key)
             -- Use entered name or selected player
             local final_name
             if #self.name_input > 0 then
+                -- New name typed
                 final_name = self.name_input
             elseif #player_names > 0 and self.selected_player_index <= #player_names then
+                -- Selected from list
                 final_name = player_names[self.selected_player_index]
             else
                 return -- No valid name

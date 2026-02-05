@@ -125,6 +125,10 @@ function ScoreboardManager:setCurrentPlayer(name)
     end
 end
 
+function ScoreboardManager:getCurrentPlayer()
+    return self.current_player
+end
+
 function ScoreboardManager:addScore(points)
     self.session_score = self.session_score + points
 end
