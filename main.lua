@@ -1,5 +1,5 @@
 -- main.lua
-local Game = require 'game'
+local Game = require 'src.game'
 
 local game
 
@@ -40,4 +40,10 @@ end
 
 function love.resize(w, h)
     game:resize(w, h)
+end
+
+function love.wheelmoved(x, y)
+    if game and game.wheelmoved then
+        game:wheelmoved(x, y)
+    end
 end

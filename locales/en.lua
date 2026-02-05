@@ -43,5 +43,55 @@ return {
         "BRILLIANT! Record score achieved!"
     },
     highscore_detail = "Previous: %d → New: %d",
-    rank_msg = "You rank #%d out of %d players!"
+    rank_msg = "You rank #%d out of %d players!",
+    
+    -- Help Dialog
+    help_title = "🦄 Help & Guide 🦄",
+    help_content = {
+        "Welcome to Rainbow Quest!",
+        "",
+        "GOAL:",
+        "Fly your unicorn to the sun, collect gold coins",
+        "and solve fun math problems to level up!",
+        "",
+        "CONTROLS:",
+        "↑ Arrow Key - Fly upward",
+        "← → Arrow Keys - Fly sideways",
+        "P - Pause game",
+        "F1 - Show this help",
+        "F2 - Settings",
+        "",
+        "HOW TO PLAY:",
+        "1. Reach the sun multiple times to advance",
+        "2. Collect gold coins that appear (+10 points)",
+        "3. Answer math questions correctly (+100 points)",
+        "4. Avoid the mean trolls!",
+        "",
+        "SCORING:",
+        "• Sun: +3 points",
+        "• Gold Coin: +10 points",
+        "• Correct Answer: +100 points",
+        "• Stage Bonus: 50 × stage",
+        "",
+        "EXTRA LIVES:",
+        "Buy extra lives with coins (costs more as you",
+        "progress). Starts at 250 coins.",
+        "",
+        "TIPS:",
+        "Gold coins are easier to collect early on!",
+        "Math problems get harder at higher stages.",
+        "Watch out for trolls - they get faster!",
+        "",
+        "Have fun and good luck! 🌟"
+    },
+    help_copyright = "© 2026 Johan Andersson | License: GPL-3.0",
+    help_close = "Press ESC or F1 to close",
+    
+    -- Settings Dialog
+    settings_title = "⚙️ Settings",
+    settings_language = "Language:",
+    settings_language_sv = "Svenska",
+    settings_language_en = "English",
+    settings_close = "Press ESC or F2 to close",
+    settings_saved = "Settings saved!"
 }

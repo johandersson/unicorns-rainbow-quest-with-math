@@ -62,7 +62,7 @@ function Quiz:update(dt)
             self.game.quiz_result_msg = nil
             self.game.quiz_active = false
             self.game.paused = false
-            self.game.unicorn = require('unicorn'):new(self.game.width / 2, self.game.height / 2, self.game.ground, self.game.width)
+            self.game.unicorn = require('src.unicorn'):new(self.game.width / 2, self.game.height / 2, self.game.ground, self.game.width)
             -- after result, spawn a troll to resume challenge
             if self.game.trollManager then
                 self.game.trollManager:add(math.random(0, self.game.width), -10, self.game.troll_base_speed)

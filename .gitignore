@@ -27,6 +27,9 @@ screenshots/
 # Scoreboard data (player high scores)
 scoreboard/
 
+# User settings
+settings.txt
+
 # Downloaded files (e.g., luarocks zip)
 luarocks.zip
 luarocks/

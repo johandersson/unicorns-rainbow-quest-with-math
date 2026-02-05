@@ -16,6 +16,8 @@ Unicorn Flight is a charming, educational LÖVE game that teaches basic arithmet
 ## Gameplay
 
 - **Player Profiles**: Enter your name at the start or select from previous players. High scores are automatically tracked per player!
+- **Help System**: Press F1 anytime to view scrollable game instructions, tips, and controls
+- **Settings**: Press F2 to change language (Swedish/English) with automatic saving
 - Fly the unicorn upward using the UP arrow key and navigate with LEFT/RIGHT arrows.
 - Reach the sun multiple times to advance stages and earn small coin rewards (+3 coins per touch).
 - Avoid falling trolls that can cost lives.
@@ -25,6 +27,12 @@ Unicorn Flight is a charming, educational LÖVE game that teaches basic arithmet
 **Collectible Coins**: Golden coins spawn periodically in the upper play area. Collect them to earn +10 coins each and progress toward stage advancement. Coins have a generous 78-pixel collection radius and remain visible for 30 seconds.
 
 **Math Challenges**: Each stage advance triggers a retro-style math quiz dialog (20s time limit). Answer correctly to earn +100 coins! Wrong answers display the correct solution in a retro dialog box. Problems scale with difficulty and include both standard additions and "missing value" equations (e.g., `3 + X = 10`).
+
+**Sound Effects**: Enjoy procedurally-generated sound effects for:
+- Coin collection (bright ascending tone)
+- Sun reaches (gentle ping)
+- Level ups (triumphant fanfare)
+- Deaths (descending tone)
 
 **Scoring System**:
 - +3 points for each sun touch
@@ -86,17 +94,40 @@ busted spec/
 
 ## Project Structure
 
-- `main.lua`: Main game entry point and LÖVE callbacks
-- `game.lua`: Core game logic with progression, coins, math quizzes, and retro dialog rendering
-- `unicorn.lua`: Unicorn class with optimized movement and sprite rendering
-- `troll.lua`: Pre-rendered troll canvas with optimized collision detection
-- `troll_manager.lua`: Manager for troll pooling and lifecycle
-- `quiz_manager.lua`: Math problem generation and quiz state management
-- `coin.lua`: Collectible coin with generous collision detection
-- `field_coins.lua`: Field coin manager with pooling
-- `locales/`: Localization files (Swedish and English)
-- `conf.lua`: LÖVE configuration
-- `spec/`: Unit tests directory
+```
+main.lua                 # Game entry point and LÖVE callbacks
+conf.lua                 # LÖVE configuration
+src/                     # Source code directory
+  ├── game.lua          # Core game coordinator
+  ├── unicorn.lua       # Player character with optimized rendering
+  ├── troll.lua         # Enemy character with canvas rendering
+  ├── troll_manager.lua # Troll lifecycle and pooling
+  ├── quiz_manager.lua  # Math problem generation and quiz logic
+  ├── coin.lua          # Collectible coin entity
+  ├── coin_manager.lua  # Coin spawning and pooling
+  ├── field_coins.lua   # Field coin collection system
+  ├── rainbow.lua       # Rainbow visual effect
+  ├── ui_manager.lua    # All UI rendering with text caching
+  ├── background_renderer.lua  # Static background with canvas
+  ├── game_state_manager.lua   # Lives, pauses, game over state
+  ├── progression_system.lua   # Stages, difficulty, coin economy
+  ├── dialog_renderer.lua      # Retro dialog boxes
+  ├── scoreboard_manager.lua   # Player profiles and high scores
+  ├── help_manager.lua         # Scrollable help dialog
+  ├── settings_manager.lua     # Language settings with persistence
+  └── sound_manager.lua        # Procedural sound generation
+locales/                 # Localization files
+  ├── sv.lua            # Swedish (default)
+  └── en.lua            # English
+spec/                    # Unit tests
+  ├── game_spec.lua
+  ├── unicorn_spec.lua
+  ├── rainbow_spec.lua
+  └── main_spec.lua
+images/                  # Documentation screenshots
+assets/                  # Game assets
+  └── sounds/           # Sound files (currently procedural)
+```
 
 ## Controls
 

@@ -20,7 +20,7 @@ function FieldCoins:spawn()
     local cx = math.random(40, self.game.width - 40)
     local upper_max = math.max(60, math.floor(self.game.height * 0.35))
     local cy = math.random(30, upper_max)
-    local Coin = require('coin')
+    local Coin = require('src.coin')
     local coin
     if #self.coin_pool > 0 then
         coin = table.remove(self.coin_pool)

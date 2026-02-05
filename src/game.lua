@@ -37,23 +37,31 @@ function Game:new()
     obj.ground = obj.height - 50
     obj.sun_x = obj.width / 2
 
-    obj.unicorn = require('unicorn'):new(obj.width / 2, obj.height / 2, obj.ground, obj.width)
+    obj.unicorn = require('src.unicorn'):new(obj.width / 2, obj.height / 2, obj.ground, obj.width)
     setmetatable(obj, self)
     self.__index = self
 
-    -- Load locale
-    obj.L = require('locales.sv')
+    -- Load locale and settings
+    obj.currentLanguage = "sv" -- Default, will be overridden by settings
+    obj.locale = require('locales.sv')
     
     -- Initialize specialized managers following Single Responsibility Principle
-    obj.stateManager = require('game_state_manager'):new()
-    obj.progressionSystem = require('progression_system'):new()
-    obj.backgroundRenderer = require('background_renderer'):new(obj.width, obj.height, obj.sun_x, obj.sun_y, obj.ground)
-    obj.uiManager = require('ui_manager'):new(obj.width, obj.height, obj.L)
-    obj.coinManager = require('coin_manager'):new(obj.width, obj.height, 18, 30.0, 12.0)
-    obj.dialogRenderer = require('dialog_renderer'):new(obj.width, obj.height)
-    obj.trollManager = require('troll_manager'):new(obj)
-    obj.quizManager = require('quiz_manager'):new(obj)
-    obj.scoreboardManager = require('scoreboard_manager'):new()
+    obj.stateManager = require('src.game_state_manager'):new()
+    obj.progressionSystem = require('src.progression_system'):new()
+    obj.backgroundRenderer = require('src.background_renderer'):new(obj.width, obj.height, obj.sun_x, obj.sun_y, obj.ground)
+    obj.uiManager = require('src.ui_manager'):new(obj.width, obj.height, obj.locale)
+    obj.dialogRenderer = require('src.dialog_renderer'):new(obj.width, obj.height)
+    obj.trollManager = require('src.troll_manager'):new(obj)
+    obj.quizManager = require('src.quiz_manager'):new(obj)
+    obj.scoreboardManager = require('src.scoreboard_manager'):new()
+    obj.settingsManager = require('src.settings_manager'):new(obj) -- Loads saved settings
+    obj.helpManager = require('src.help_manager'):new(obj)
+    obj.soundManager = require('src.sound_manager'):new()
+    obj.coinManager = require('src.coin_manager'):new(obj.width, obj.height, 18, 30.0, 12.0, obj)
+    
+    -- Update uiManager locale after settings load
+    obj.uiManager.locale = obj.locale
+    obj.L = obj.locale -- Backward compatibility
 
     obj:addTroll(math.random(0, obj.width), -10, 200)
 
@@ -67,6 +75,11 @@ function Game:addTroll(x, y, speed)
 end
 
 function Game:update(dt)
+    -- Update settings manager timer
+    if self.settingsManager then
+        self.settingsManager:update(dt)
+    end
+    
     if self.stateManager.game_over then 
         -- Finalize score when game ends
         if not self.show_highscore_celebration then
@@ -77,6 +90,12 @@ function Game:update(dt)
     end
     if self.stateManager.manual_pause then return end
     if self.stateManager.show_welcome or self.name_input_active then return end
+    
+    -- Don't update game if help or settings are visible
+    if (self.helpManager and self.helpManager.isVisible) or 
+       (self.settingsManager and self.settingsManager.isVisible) then
+        return
+    end
 
     -- If a quiz is active, delegate to quiz manager
     if self.quiz_active then
@@ -88,7 +107,15 @@ function Game:update(dt)
     if hit_ground then
         local is_game_over = self.stateManager:takeDamage()
         if is_game_over then
+            -- Play death sound on game over
+            if self.soundManager then
+                self.soundManager:play('death')
+            end
             return
+        end
+        -- Play death sound on losing a life
+        if self.soundManager then
+            self.soundManager:play('death')
         end
     end
 
@@ -97,7 +124,7 @@ function Game:update(dt)
         local should_respawn = self.stateManager:updateDeathTimer(dt)
         if should_respawn then
             -- Respawn unicorn
-            self.unicorn = require('unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
+            self.unicorn = require('src.unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
             -- Update troll targets to the new unicorn
             for _, entry in ipairs(self.trolls) do
                 entry.troll.target = self.unicorn
@@ -120,6 +147,11 @@ function Game:update(dt)
         self.progressionSystem:addCoins(3)
         self.scoreboardManager:addScore(3) -- Add to session score
         self.progressionSystem:incrementSunHits()
+        
+        -- Play sun reach sound
+        if self.soundManager then
+            self.soundManager:play('sun')
+        end
 
         -- Check for extra lives
         local lives_to_add = self.progressionSystem:checkExtraLives()
@@ -139,6 +171,11 @@ function Game:update(dt)
             -- Award stage completion bonus
             local stage_bonus = self.progressionSystem.stage * 50
             self.scoreboardManager:addScore(stage_bonus)
+            
+            -- Play level up sound
+            if self.soundManager then
+                self.soundManager:play('levelup')
+            end
 
             -- Spawn trolls for new stage
             for i = 1, spawn_count do
@@ -282,6 +319,20 @@ function Game:draw()
     if self.stateManager.show_welcome and not self.name_input_active then
         self.uiManager:drawWelcomeScreen()
     end
+    
+    -- Help and settings dialogs (drawn last, on top of everything)
+    if self.helpManager then
+        self.helpManager:draw()
+    end
+    if self.settingsManager then
+        self.settingsManager:draw()
+    end
+        self.helpManager:draw()
+    end
+    
+    if self.settingsManager then
+        self.settingsManager:draw()
+    end
 end
 
 
@@ -298,6 +349,36 @@ function Game:resize(w, h)
 end
 
 function Game:keypressed(key)
+    -- F1 for help
+    if key == 'f1' then
+        if self.helpManager then
+            self.helpManager:toggle()
+        end
+        return
+    end
+    
+    -- F2 for settings
+    if key == 'f2' then
+        if self.settingsManager then
+            self.settingsManager:toggle()
+        end
+        return
+    end
+    
+    -- Help manager handles its own keys when visible
+    if self.helpManager and self.helpManager.isVisible then
+        if self.helpManager:keypressed(key) then
+            return
+        end
+    end
+    
+    -- Settings manager handles its own keys when visible
+    if self.settingsManager and self.settingsManager.isVisible then
+        if self.settingsManager:keypressed(key) then
+            return
+        end
+    end
+    
     -- Handle name input screen
     if self.name_input_active then
         if key == 'backspace' then
@@ -391,7 +472,7 @@ function Game:keypressed(key)
     
     if self.stateManager.game_over and key == 'r' then
         -- Restart
-        self.unicorn = require('unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
+        self.unicorn = require('src.unicorn'):new(self.width / 2, self.height / 2, self.ground, self.width)
         self.stateManager:reset()
         self.progressionSystem:reset()
         self.coinManager:resetProgress()
@@ -400,6 +481,13 @@ function Game:keypressed(key)
         self.trolls = {}
         self.troll_pool = {}
         self:addTroll(math.random(0, self.width), -10, 200)
+    end
+end
+
+function Game:wheelmoved(x, y)
+    -- Delegate mouse wheel to help manager for scrolling
+    if self.helpManager and self.helpManager.isVisible then
+        self.helpManager:wheelmoved(x, y)
     end
 end
 

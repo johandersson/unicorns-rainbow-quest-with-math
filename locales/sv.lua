@@ -44,5 +44,55 @@ return {
         "BRILJANT! Rekordpoäng uppnådd!"
     },
     highscore_detail = "Förra rekord: %d → Nytt rekord: %d",
-    rank_msg = "Du rankas #%d av %d spelare!"
+    rank_msg = "Du rankas #%d av %d spelare!",
+    
+    -- Help Dialog
+    help_title = "🦄 Hjälp & Guide 🦄",
+    help_content = {
+        "Välkommen till Rainbow Quest!",
+        "",
+        "MÅL:",
+        "Flyg din enhörning till solen, samla guldmynt och",
+        "lös roliga mattetal för att bli bättre och bättre!",
+        "",
+        "KONTROLLER:",
+        "↑ Piltangent - Flyg uppåt",
+        "← → Piltangenter - Flyg åt sidorna",
+        "P - Pausa spelet",
+        "F1 - Visa denna hjälp",
+        "F2 - Inställningar",
+        "",
+        "HUR MAN SPELAR:",
+        "1. Nå solen flera gånger för att gå vidare",
+        "2. Samla guldmynt som dyker upp (+10 poäng)",
+        "3. Svara rätt på mattetal (+100 poäng)",
+        "4. Undvik de elaka trollen!",
+        "",
+        "POÄNG:",
+        "• Sol: +3 poäng",
+        "• Guldmynt: +10 poäng",
+        "• Rätt svar: +100 poäng",
+        "• Nivåbonus: 50 × nivå",
+        "",
+        "EXTRA LIV:",
+        "Köp extra liv för mynt (kostar mer ju längre",
+        "du kommer). Börjar på 250 mynt.",
+        "",
+        "TIPS:",
+        "Guldmynt är lättare att samla i början!",
+        "Mattetalen blir svårare ju högre nivå.",
+        "Håll koll på trollen - de blir snabbare!",
+        "",
+        "Ha så kul och lycka till! 🌟"
+    },
+    help_copyright = "© 2026 Johan Andersson | Licens: GPL-3.0",
+    help_close = "Tryck ESC eller F1 för att stänga",
+    
+    -- Settings Dialog
+    settings_title = "⚙️ Inställningar",
+    settings_language = "Språk:",
+    settings_language_sv = "Svenska",
+    settings_language_en = "English",
+    settings_close = "Tryck ESC eller F2 för att stänga",
+    settings_saved = "Inställningar sparade!"
 }

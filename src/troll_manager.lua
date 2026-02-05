@@ -1,5 +1,5 @@
 -- troll_manager.lua
-local Troll = require('troll')
+local Troll = require('src.troll')
 
 local TrollManager = {}
 TrollManager.__index = TrollManager

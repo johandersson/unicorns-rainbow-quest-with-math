@@ -2,7 +2,7 @@
 -- Manages field coins (spawning, updating, collecting, pooling)
 CoinManager = {}
 
-function CoinManager:new(width, height, coin_radius, coin_lifetime, spawn_interval)
+function CoinManager:new(width, height, coin_radius, coin_lifetime, spawn_interval, game)
     local obj = {
         width = width,
         height = height,
@@ -12,7 +12,8 @@ function CoinManager:new(width, height, coin_radius, coin_lifetime, spawn_interv
         field_coins = {},
         coin_pool = {},
         coin_spawn_timer = 0,
-        progress_coins = 0
+        progress_coins = 0,
+        game = game
     }
     
     setmetatable(obj, self)
@@ -27,7 +28,7 @@ function CoinManager:spawnCoin()
     local upper_max = math.max(60, math.floor(self.height * 0.35))
     local cy = math.random(30, upper_max)
     
-    local Coin = require('coin')
+    local Coin = require('src.coin')
     local coin
     if #self.coin_pool > 0 then
         coin = table.remove(self.coin_pool)
@@ -63,6 +64,10 @@ function CoinManager:update(dt, unicorn)
         
         if collected then
             self.progress_coins = self.progress_coins + 1
+            -- Play coin collection sound
+            if self.game and self.game.soundManager then
+                self.game.soundManager:play('coin')
+            end
             -- Recycle coin
             table.insert(self.coin_pool, fc)
             self.field_coins[k] = self.field_coins[#self.field_coins]
