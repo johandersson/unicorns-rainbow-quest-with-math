@@ -25,5 +25,24 @@ return {
     correct_answer_label = "Det rätta svaret var:",
     quiz_correct_msgs = {"Rätt! +100 mynt", "Bra! +100 mynt", "Korrekt! +100 mynt"},
     quiz_wrong_msgs = {"Oj! Inte rätt.", "Nästan, försök igen.", "Fel — prova igen."},
-    timeout_msgs = {"Tiden slut! Försök snabbare.", "Förlorad tid!", "För långsamt!"}
+    timeout_msgs = {"Tiden slut! Försök snabbare.", "Förlorad tid!", "För långsamt!"},
+
+    -- Scoreboard
+    enter_name_title = "Välkommen!",
+    enter_name_prompt = "Ange ditt namn:",
+    select_player_prompt = "Välj spelare eller skriv nytt namn:",
+    enter_name_hint = "Tryck Enter för att fortsätta",
+    score_label = "Poäng: %d",
+    highscore_label = "Rekord: %d",
+    
+    -- High score celebration messages
+    new_highscore_title = "🌟 NYTT REKORD! 🌟",
+    new_highscore_msgs = {
+        "FANTASTISKT! Du slog ditt rekord!",
+        "GRATTIS! Nytt personbästa!",
+        "OTROLIGT! Du är en stjärna!",
+        "BRILJANT! Rekordpoäng uppnådd!"
+    },
+    highscore_detail = "Förra rekord: %d → Nytt rekord: %d",
+    rank_msg = "Du rankas #%d av %d spelare!"
 }

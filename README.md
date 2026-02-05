@@ -15,6 +15,7 @@ Unicorn Flight is a charming, educational LÖVE game that teaches basic arithmet
 
 ## Gameplay
 
+- **Player Profiles**: Enter your name at the start or select from previous players. High scores are automatically tracked per player!
 - Fly the unicorn upward using the UP arrow key and navigate with LEFT/RIGHT arrows.
 - Reach the sun multiple times to advance stages and earn small coin rewards (+3 coins per touch).
 - Avoid falling trolls that can cost lives.
@@ -24,6 +25,13 @@ Unicorn Flight is a charming, educational LÖVE game that teaches basic arithmet
 **Collectible Coins**: Golden coins spawn periodically in the upper play area. Collect them to earn +10 coins each and progress toward stage advancement. Coins have a generous 78-pixel collection radius and remain visible for 30 seconds.
 
 **Math Challenges**: Each stage advance triggers a retro-style math quiz dialog (20s time limit). Answer correctly to earn +100 coins! Wrong answers display the correct solution in a retro dialog box. Problems scale with difficulty and include both standard additions and "missing value" equations (e.g., `3 + X = 10`).
+
+**Scoring System**:
+- +3 points for each sun touch
+- +10 points per collected coin
+- +100 points for correct quiz answers
+- Bonus points for stage completion (50 × stage number)
+- Beat your high score to see a glowing gold celebration screen!
 
 **Progressive Difficulty**: 
 - Extra lives start at 250 coins and increase by +75 coins per stage
@@ -37,6 +45,17 @@ The game uses advanced optimization techniques:
 - **Object pooling**: Recycled trolls and coins to reduce garbage collection
 - **Optimized collision detection**: Squared distance calculations (no sqrt)
 - **Pre-calculated constants**: Rainbow colors, collision radii cached at module level
+- **Inner functions**: Strategic use of inner functions for hot paths and repeated operations
+- **Component-based architecture**: Separated concerns reduce coupling and improve maintainability
+
+## High Score System
+
+Player names and high scores are automatically saved to `scoreboard/highscores.txt` (excluded from version control). Features:
+- **Player selection**: Choose from previous players or create a new profile
+- **Per-player tracking**: Each player maintains their own high score
+- **Automatic saving**: Scores are saved immediately upon game over
+- **Celebration screen**: New high scores trigger a glowing gold retro dialog with encouraging messages in both Swedish and English
+- **Ranking display**: See your rank among all players
 
 ## Prerequisites
 

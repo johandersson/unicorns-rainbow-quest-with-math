@@ -24,6 +24,9 @@ dist/
 # Screenshots (auto-generated, not committed - use images/ for documentation)
 screenshots/
 
+# Scoreboard data (player high scores)
+scoreboard/
+
 # Downloaded files (e.g., luarocks zip)
 luarocks.zip
 luarocks/

@@ -71,11 +71,12 @@ function TrollManager:update(dt)
             table.remove(self.trolls)
         end
     end
-    -- optional periodic spawn scaled by game.stage
+    -- optional periodic spawn scaled by game.progressionSystem.stage
     self.spawn_timer = self.spawn_timer + dt
     if self.spawn_timer >= self.spawn_interval then
         self.spawn_timer = self.spawn_timer - self.spawn_interval
-        local count = (math.random() < math.min(0.25 + self.game.stage * 0.05, 0.8)) and 1 or 0
+        local stage = self.game.progressionSystem and self.game.progressionSystem.stage or 1
+        local count = (math.random() < math.min(0.25 + stage * 0.05, 0.8)) and 1 or 0
         for j = 1, count do
             local sx = math.random(0, self.game.width)
             local speed = self.base_speed + math.random(-30, 60)

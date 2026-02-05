@@ -24,5 +24,24 @@ return {
     quiz_hint = "Type the answer and press Enter. +100 coins for correct.",
     quiz_correct_msgs = {"Nice! +100 coins","Boom! +100 coins","Correct! +100 coins"},
     quiz_wrong_msgs = {"Oops! Not quite.", "Close, but no cookie.", "Nope — better luck next time."},
-    timeout_msgs = {"Time! Try faster next time.", "Out of time!", "Too slow!"}
+    timeout_msgs = {"Time! Try faster next time.", "Out of time!", "Too slow!"},
+
+    -- Scoreboard
+    enter_name_title = "Welcome!",
+    enter_name_prompt = "Enter your name:",
+    select_player_prompt = "Select player or enter new name:",
+    enter_name_hint = "Press Enter to continue",
+    score_label = "Score: %d",
+    highscore_label = "High Score: %d",
+    
+    -- High score celebration messages
+    new_highscore_title = "🌟 NEW HIGH SCORE! 🌟",
+    new_highscore_msgs = {
+        "AMAZING! You beat your record!",
+        "CONGRATULATIONS! New personal best!",
+        "INCREDIBLE! You're a star!",
+        "BRILLIANT! Record score achieved!"
+    },
+    highscore_detail = "Previous: %d → New: %d",
+    rank_msg = "You rank #%d out of %d players!"
 }
