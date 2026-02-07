@@ -208,7 +208,7 @@ function Quiz:update(dt)
             self.game.unicorn = require('src.unicorn'):new(self.game.width / 2, self.game.height / 2, self.game.ground, self.game.width)
             -- after result, spawn a troll to resume challenge
             if self.game.trollManager then
-                self.game.trollManager:add(math.random(0, self.game.width), -10, self.game.troll_base_speed)
+                self.game.trollManager:add(math.random(0, self.game.width), -80, self.game.troll_base_speed)
             end
         end
         return

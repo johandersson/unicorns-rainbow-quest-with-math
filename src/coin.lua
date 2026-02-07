@@ -64,12 +64,35 @@ function Coin:isCollectedBy(unicorn)
 end
 
 function Coin:draw()
-    love.graphics.setColor(1, 0.85, 0)
+    local time = love.timer.getTime()
+    local pulse = math.sin(time * 4) * 0.1 + 1  -- Pulsing effect
+    local glow_size = self.radius * pulse * 1.3
+    
+    -- Outer glow (like Super Mario coins)
+    love.graphics.setColor(1, 1, 0.5, 0.3)
+    love.graphics.circle('fill', self.x, self.y, glow_size)
+    
+    -- Main coin body (golden)
+    love.graphics.setColor(1, 0.84, 0)
     love.graphics.circle('fill', self.x, self.y, self.radius)
+    
+    -- Inner bright center (shiny)
     love.graphics.setColor(1, 1, 0.6)
-    love.graphics.circle('fill', self.x - 4, self.y - 4, self.radius * 0.5)
-    love.graphics.setColor(0.8, 0.6, 0)
+    love.graphics.circle('fill', self.x - self.radius * 0.2, self.y - self.radius * 0.2, self.radius * 0.4)
+    
+    -- Edge highlight (top-left shine)
+    love.graphics.setColor(1, 1, 0.9, 0.8)
+    love.graphics.circle('fill', self.x - self.radius * 0.3, self.y - self.radius * 0.3, self.radius * 0.25)
+    
+    -- Darker outline for definition
+    love.graphics.setColor(0.7, 0.55, 0)
+    love.graphics.setLineWidth(2)
     love.graphics.circle('line', self.x, self.y, self.radius)
+    
+    -- Inner detail ring
+    love.graphics.setColor(1, 0.9, 0.3, 0.6)
+    love.graphics.setLineWidth(1)
+    love.graphics.circle('line', self.x, self.y, self.radius * 0.7)
 end
 
 return Coin

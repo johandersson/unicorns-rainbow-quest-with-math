@@ -107,7 +107,7 @@ function TrollManager:update(dt)
         for j = 1, count do
             local sx = math.random(0, self.game.width)
             local speed = self.base_speed + math.random(-30, 60)
-            self:add(sx, -10, speed)
+            self:add(sx, -80, speed)
         end
     end
 end

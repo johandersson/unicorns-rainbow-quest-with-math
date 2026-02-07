@@ -67,53 +67,59 @@ function IconRenderer:drawUnicornIcon(x, y, size)
     love.graphics.draw(icon_cache[key], x, y)
 end
 
--- Draw medal icon (for high scores)
+-- Draw medal icon (for high scores) - shiny with glow
 function IconRenderer:drawMedalIcon(x, y, rank, size)
     size = size or self.icon_size
-    local key = "medal_" .. rank .. "_" .. size
     
-    if not icon_cache[key] then
-        icon_cache[key] = love.graphics.newCanvas(size, size)
-        love.graphics.setCanvas(icon_cache[key])
-        love.graphics.clear(0, 0, 0, 0)
-        
-        -- Medal color based on rank
-        local color
-        if rank == 1 then
-            color = {1, 0.84, 0}  -- Gold
-        elseif rank == 2 then
-            color = {0.75, 0.75, 0.75}  -- Silver
-        else
-            color = {0.8, 0.5, 0.2}  -- Bronze
-        end
-        
-        -- Medal circle
-        love.graphics.setColor(color)
-        love.graphics.circle('fill', size * 0.5, size * 0.5, size * 0.4)
-        
-        -- Inner circle (darker)
-        love.graphics.setColor(color[1] * 0.7, color[2] * 0.7, color[3] * 0.7)
-        love.graphics.circle('fill', size * 0.5, size * 0.5, size * 0.3)
-        
-        -- Number
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.circle('fill', size * 0.5, size * 0.5, size * 0.2)
-        
-        love.graphics.setCanvas()
+    -- Medal color based on rank
+    local color, glow_color
+    if rank == 1 then
+        color = {1, 0.84, 0}  -- Gold
+        glow_color = {1, 1, 0.3, 0.3}  -- Yellow glow
+    elseif rank == 2 then
+        color = {0.85, 0.85, 0.85}  -- Silver
+        glow_color = {0.9, 0.9, 1, 0.3}  -- Silver glow
+    else
+        color = {0.85, 0.52, 0.25}  -- Bronze
+        glow_color = {1, 0.6, 0.2, 0.3}  -- Orange glow
     end
     
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.draw(icon_cache[key], x, y)
+    -- Draw outer glow
+    love.graphics.setColor(glow_color)
+    love.graphics.circle('fill', x + size * 0.5, y + size * 0.5, size * 0.55)
     
-    -- Draw rank number on top
+    -- Draw main medal circle
+    love.graphics.setColor(color)
+    love.graphics.circle('fill', x + size * 0.5, y + size * 0.5, size * 0.45)
+    
+    -- Inner darker ring for depth
+    love.graphics.setColor(color[1] * 0.6, color[2] * 0.6, color[3] * 0.6)
+    love.graphics.circle('fill', x + size * 0.5, y + size * 0.5, size * 0.35)
+    
+    -- Center white circle for number
+    love.graphics.setColor(1, 1, 1, 0.95)
+    love.graphics.circle('fill', x + size * 0.5, y + size * 0.5, size * 0.28)
+    
+    -- Shine/highlight at top-left
+    love.graphics.setColor(1, 1, 1, 0.6)
+    love.graphics.circle('fill', x + size * 0.35, y + size * 0.35, size * 0.15)
+    
+    -- Draw rank number centered
     love.graphics.setColor(0, 0, 0)
     local font = love.graphics.getFont()
     local old_font = font
-    if size < 12 then
-        font = love.graphics.newFont(8)
-        love.graphics.setFont(font)
-    end
-    love.graphics.printf(tostring(rank), x - size * 0.5, y + size * 0.3, size * 2, 'center')
+    
+    -- Use appropriate font size
+    local font_size = math.max(8, math.floor(size * 0.5))
+    local number_font = love.graphics.newFont(font_size)
+    love.graphics.setFont(number_font)
+    
+    -- Center the number properly
+    local text = tostring(rank)
+    local text_width = number_font:getWidth(text)
+    local text_height = number_font:getHeight()
+    love.graphics.print(text, x + size * 0.5 - text_width * 0.5, y + size * 0.5 - text_height * 0.5)
+    
     if old_font then
         love.graphics.setFont(old_font)
     end

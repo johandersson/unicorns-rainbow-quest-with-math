@@ -83,13 +83,16 @@ function Unicorn:update(dt)
     
     -- Clamp bounds (optimized with single assignment)
     self.x = math.max(half_w, math.min(new_x, self.screen_width - half_w))
+    
+    -- Check ground collision BEFORE clamping (only die if actually hitting ground)
+    local hit_ground = false
+    if new_y + half_h >= self.ground then
+        hit_ground = true
+    end
+    
     self.y = math.max(half_h, math.min(new_y, self.ground - half_h))
     
-    -- Check ground collision (early return optimization)
-    if new_y + half_h > self.ground then
-        return true -- signal game over
-    end
-    return false
+    return hit_ground
 end
 
 function Unicorn:draw()

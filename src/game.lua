@@ -78,7 +78,7 @@ function Game:new()
     obj.uiManager.locale = obj.locale
     obj.L = obj.locale -- Backward compatibility
 
-    obj:addTroll(math.random(0, obj.width), -10, 200)
+    obj:addTroll(math.random(0, obj.width), -80, 200)
 
     return obj
 end
@@ -160,7 +160,7 @@ function Game:update(dt)
     end
 
     -- Check if reached the sun (trigger once per pass)
-    local touching_sun = self.unicorn.y < self.sun_y + 65 and math.abs(self.unicorn.x - self.sun_x) < 65
+    local touching_sun = self.unicorn.y < self.sun_y + 80 and math.abs(self.unicorn.x - self.sun_x) < 80
     
     if touching_sun and not self.sun_just_touched then
         self.sun_just_touched = true
@@ -201,7 +201,7 @@ function Game:update(dt)
             for i = 1, spawn_count do
                 local sx = math.random(0, self.width)
                 local speed = self.progressionSystem:getTrollSpeed()
-                self:addTroll(sx, -10, speed)
+                self:addTroll(sx, -80, speed)
             end
 
             -- Start quiz
@@ -231,7 +231,7 @@ function Game:update(dt)
         for i = 1, count do
             local sx = math.random(0, self.width)
             local speed = self.progressionSystem:getTrollSpeed()
-            self:addTroll(sx, -10, speed)
+            self:addTroll(sx, -80, speed)
         end
     end
 
@@ -510,7 +510,7 @@ function Game:keypressed(key)
             self.trollManager.trolls = {}
             self.trollManager.pool = {}
         end
-        self:addTroll(math.random(0, self.width), -10, 200)
+        self:addTroll(math.random(0, self.width), -80, 200)
     end
 end
 

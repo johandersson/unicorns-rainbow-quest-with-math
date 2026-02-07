@@ -40,8 +40,8 @@ function SoundManager:generateSounds()
     -- Level up sound: triumphant, ascending sequence
     self.sounds.levelup = self:generateTone(0.4, 400, 800, 0.6)
     
-    -- Sun reach sound: gentle, high ping
-    self.sounds.sun = self:generateTone(0.08, 1000, 1200, 0.2)
+    -- Sun reach sound: gentle, smooth, pleasant chime
+    self.sounds.sun = self:generateSmoothChime()
 end
 
 function SoundManager:generateTone(duration, startFreq, endFreq, volume)
@@ -66,6 +66,37 @@ function SoundManager:generateTone(duration, startFreq, endFreq, volume)
         
         -- Generate sine wave with envelope
         local sample = math.sin(2 * math.pi * freq * t) * envelope * volume
+        
+        soundData:setSample(i, sample)
+    end
+    
+    return love.audio.newSource(soundData)
+end
+
+function SoundManager:generateSmoothChime()
+    local duration = 0.3
+    local sampleRate = 22050
+    local samples = math.floor(duration * sampleRate)
+    local soundData = love.sound.newSoundData(samples, sampleRate, 16, 1)
+    
+    for i = 0, samples - 1 do
+        local t = i / sampleRate
+        local progress = i / samples
+        
+        -- Smooth exponential decay envelope
+        local envelope = math.exp(-progress * 5) * 0.4
+        
+        -- Pleasant harmonic frequencies (major chord: C, E, G)
+        local freq1 = 523.25  -- C5
+        local freq2 = 659.25  -- E5
+        local freq3 = 783.99  -- G5
+        
+        -- Mix harmonics for pleasant sound
+        local sample = (
+            math.sin(2 * math.pi * freq1 * t) * 0.5 +
+            math.sin(2 * math.pi * freq2 * t) * 0.3 +
+            math.sin(2 * math.pi * freq3 * t) * 0.2
+        ) * envelope
         
         soundData:setSample(i, sample)
     end
