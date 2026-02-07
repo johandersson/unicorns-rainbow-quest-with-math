@@ -35,6 +35,36 @@ if not troll_canvas then
     love.graphics.setColor(0, 0, 0) -- black pupils
     love.graphics.circle('fill', TROLL_SIZE/2 - 6, TROLL_SIZE/2 - 6, 2)
     love.graphics.circle('fill', TROLL_SIZE/2 + 6, TROLL_SIZE/2 - 6, 2)
+    
+    -- SCARY SHARP TEETH (no anti-aliasing)
+    love.graphics.setLineStyle('rough')
+    love.graphics.setColor(0, 0, 0) -- black teeth
+    -- Draw sharp triangular teeth
+    local mouth_y = TROLL_SIZE/2 + 8
+    local teeth = {
+        {TROLL_SIZE/2 - 10, mouth_y, TROLL_SIZE/2 - 6, mouth_y + 6, TROLL_SIZE/2 - 8, mouth_y},
+        {TROLL_SIZE/2 - 4, mouth_y, TROLL_SIZE/2, mouth_y + 7, TROLL_SIZE/2 - 2, mouth_y},
+        {TROLL_SIZE/2 + 2, mouth_y, TROLL_SIZE/2 + 6, mouth_y + 7, TROLL_SIZE/2 + 4, mouth_y},
+        {TROLL_SIZE/2 + 8, mouth_y, TROLL_SIZE/2 + 12, mouth_y + 6, TROLL_SIZE/2 + 10, mouth_y}
+    }
+    for _, tooth in ipairs(teeth) do
+        love.graphics.polygon('fill', tooth)
+    end
+    
+    -- BLOOD DRIPS from teeth
+    love.graphics.setColor(0.5, 0, 0) -- dark blood red
+    -- Drip lines from each tooth tip
+    love.graphics.setLineWidth(1)
+    love.graphics.line(TROLL_SIZE/2 - 6, mouth_y + 6, TROLL_SIZE/2 - 6, mouth_y + 10)
+    love.graphics.line(TROLL_SIZE/2, mouth_y + 7, TROLL_SIZE/2, mouth_y + 12)
+    love.graphics.line(TROLL_SIZE/2 + 6, mouth_y + 7, TROLL_SIZE/2 + 6, mouth_y + 11)
+    love.graphics.line(TROLL_SIZE/2 + 12, mouth_y + 6, TROLL_SIZE/2 + 12, mouth_y + 9)
+    -- Blood droplets at bottom
+    love.graphics.setColor(0.6, 0, 0) -- brighter blood
+    love.graphics.circle('fill', TROLL_SIZE/2 - 6, mouth_y + 11, 1.5)
+    love.graphics.circle('fill', TROLL_SIZE/2, mouth_y + 13, 1.5)
+    love.graphics.circle('fill', TROLL_SIZE/2 + 6, mouth_y + 12, 1.5)
+    
     love.graphics.setCanvas()
 end
 

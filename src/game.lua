@@ -160,7 +160,7 @@ function Game:update(dt)
     end
 
     -- Check if reached the sun (trigger once per pass)
-    local touching_sun = self.unicorn.y < self.sun_y + 40 and math.abs(self.unicorn.x - self.sun_x) < 40
+    local touching_sun = self.unicorn.y < self.sun_y + 65 and math.abs(self.unicorn.x - self.sun_x) < 65
     
     if touching_sun and not self.sun_just_touched then
         self.sun_just_touched = true
