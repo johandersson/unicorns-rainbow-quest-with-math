@@ -195,21 +195,20 @@ function UIManager:drawWelcomeScreen(top_scores, welcome_scroll_offset)
                 self.iconRenderer:drawMedalIcon(self.width / 2 - 120, y - 2, i, 16)
             end
             
-            local text = string.format("#%d  %s - %d"" or (i == 3 and "🥉 " or ""))
-            local text = string.format("%s#%d  %s - %d", medal, i, score_data.name, score_data.highscore)
+            local text = string.format("#%d  %s - %d", i, score_data.name, score_data.highscore)
             love.graphics.printf(text, 0, y, self.width, 'center')
             y = y + 24
-        endself.iconRenderer:drawArrowIcon(self.width / 2 - 60, board_y + 23, "up", 12)
-            love.graphics.printf("More above", 0, board_y + 25, self.width, 'center')
         end
-        if end_idx < #top_scores then
+        
+        -- Show scroll indicators
+        if start_idx > 1 then
             love.graphics.setColor(1, 1, 0, 0.7)
-            self.iconRenderer:drawArrowIcon(self.width / 2 - 60, y - 2, "down", 12)
-            love.graphics.printf(", 1, 0, 0.7)
+            self.iconRenderer:drawArrowIcon(self.width / 2 - 60, board_y + 23, "up", 12)
             love.graphics.printf("▲ More above", 0, board_y + 25, self.width, 'center')
         end
         if end_idx < #top_scores then
             love.graphics.setColor(1, 1, 0, 0.7)
+            self.iconRenderer:drawArrowIcon(self.width / 2 - 60, y - 2, "down", 12)
             love.graphics.printf("▼ More below", 0, y, self.width, 'center')
         end
     end
