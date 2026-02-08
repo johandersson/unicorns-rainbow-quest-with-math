@@ -19,7 +19,7 @@
 local SoundManager = {}
 SoundManager.__index = SoundManager
 
-function SoundManager.new()
+function SoundManager:new()
     local self = setmetatable({}, SoundManager)
     self.sounds = {}
     self.enabled = true

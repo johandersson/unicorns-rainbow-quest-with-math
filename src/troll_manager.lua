@@ -70,9 +70,9 @@ function TrollManager:update(dt)
         end
     end
     
-    -- Play warning sound if a troll is close but not colliding (between 100-150 pixels)
-    local warning_radius_sq = 120 * 120  -- 14400
-    local collision_radius_sq = 28 * 28   -- 784
+    -- Play warning sound if a troll is close but not colliding
+    local warning_radius_sq = 150 * 150  -- 22500
+    local collision_radius_sq = 45 * 45   -- 2025 (increased from 28 to catch fast-moving trolls)
     if closest_dist_sq < warning_radius_sq and closest_dist_sq > collision_radius_sq and self.troll_sound_cooldown <= 0 then
         if self.game.soundManager then
             self.game.soundManager:play('troll')
@@ -86,13 +86,13 @@ function TrollManager:update(dt)
         local t = entry.troll
         if entry.active then
             t:update(dt, self.game.unicorn)
-            -- Tighter collision detection - only register hits when truly touching
-            -- Troll visual radius is 20px, unicorn is ~20px, require actual overlap
+            -- Collision detection with buffer for fast-moving trolls
+            -- Troll visual radius ~25px, unicorn ~25px
             local dx = self.game.unicorn.x - t.x
             local dy = self.game.unicorn.y - t.y
-            -- Reduced collision radius: only ~28 pixels (troll 20 + unicorn 15 - 7 overlap tolerance)
-            -- This prevents "phantom hits" from far away
-            local collision_radius_sq = 28 * 28  -- 784 (was 1600 = 40^2)
+            -- Collision radius: 45 pixels - accounts for sprite sizes + movement speed
+            -- Prevents trolls from "jumping through" unicorn at high speeds
+            local collision_radius_sq = 45 * 45  -- 2025
             if dx*dx + dy*dy < collision_radius_sq then
                 table.insert(self.pool, t)
                 self.trolls[i] = self.trolls[#self.trolls]
