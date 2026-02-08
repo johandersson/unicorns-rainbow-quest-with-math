@@ -156,8 +156,8 @@ function HelpManager:draw()
     -- Draw content with scroll offset
     love.graphics.setColor(1, 1, 1, 1)
     local y = contentY - self.scrollOffset
-    Draw help content
-    local help_content = locale.help_content
+    
+    -- Draw help content
     local help_content = (locale and locale.help_content) or {}
     for i, line in ipairs(help_content) do
         if line == "" then
