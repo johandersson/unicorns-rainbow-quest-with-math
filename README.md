@@ -33,6 +33,7 @@ Rainbow Quest - Unicorn Flight with Math is a charming, educational [LÖVE](http
 - Sun reaches (gentle ping 1000→1200 Hz)
 - Level ups (triumphant fanfare 400→800 Hz)
 - Deaths (descending tone 600→200 Hz)
+- Troll warning (low-frequency growl when trolls approach)
 - All sounds generated using LÖVE's SoundData API (no external files needed)
 
 **Scoring System**:
@@ -46,16 +47,6 @@ Rainbow Quest - Unicorn Flight with Math is a charming, educational [LÖVE](http
 - Extra lives start at 250 coins and increase by +75 coins per stage
 - Troll speed and spawn rates increase with each stage
 - Sun hits and coin collection requirements grow progressively
-
-## Performance Optimizations
-
-The game uses advanced optimization techniques:
-- **Memoization**: Cached sprites, formatted strings, and locale lookups
-- **Object pooling**: Recycled trolls and coins to reduce garbage collection
-- **Optimized collision detection**: Squared distance calculations (no sqrt)
-- **Pre-calculated constants**: Rainbow colors, collision radii cached at module level
-- **Inner functions**: Strategic use of inner functions for hot paths and repeated operations
-- **Component-based architecture**: Separated concerns reduce coupling and improve maintainability
 
 ## High Score System
 
@@ -73,7 +64,7 @@ Player names and high scores are automatically saved to `scoreboard/highscores.t
   - Download and install LuaRocks from [luarocks.org](https://luarocks.org/)
   - Run `luarocks install busted` to install the Busted testing framework
 
-This project is built for LÖVE 11.x and requires no external media assets except the unicorn sprite; everything else is drawn procedurally.
+This project is built for LÖVE 11.x. Visual assets include the unicorn and troll sprites in the `graphics/` folder; all other elements (UI, coins, rainbow, background) are drawn procedurally.
 
 ## Running the Game
 
@@ -100,33 +91,37 @@ main.lua                 # Game entry point and LÖVE callbacks
 conf.lua                 # LÖVE configuration
 src/                     # Source code directory
   ├── game.lua          # Core game coordinator
-  ├── unicorn.lua       # Player character with optimized rendering
-  ├── troll.lua         # Enemy character with canvas rendering
+  ├── unicorn.lua       # Player character with sprite rendering
+  ├── troll.lua         # Enemy character with 12-frame sprite animation
   ├── troll_manager.lua # Troll lifecycle and pooling
   ├── quiz_manager.lua  # Math problem generation and quiz logic
   ├── coin.lua          # Collectible coin entity
   ├── coin_manager.lua  # Coin spawning and pooling
   ├── rainbow.lua       # Rainbow visual effect
   ├── ui_manager.lua    # All UI rendering with text caching
+  ├── icon_renderer.lua # Programmatic icon rendering (star, gear, arrows)
   ├── background_renderer.lua  # Static background with canvas
   ├── game_state_manager.lua   # Lives, pauses, game over state
   ├── progression_system.lua   # Stages, difficulty, coin economy
   ├── dialog_renderer.lua      # Retro dialog boxes
   ├── scoreboard_manager.lua   # Player profiles and high scores
-  ├── help_manager.lua         # Scrollable help dialog
-  ├── settings_manager.lua     # Language settings with persistence
+  ├── help_manager.lua         # Scrollable help dialog (F1)
+  ├── settings_manager.lua     # Language settings with persistence (F2)
   └── sound_manager.lua        # Procedural sound generation
 locales/                 # Localization files
-  ├── sv.lua            # Swedish (default)
-  └── en.lua            # English
+  ├── sv.lua            # Swedish (complete translation)
+  └── en.lua            # English (complete translation)
 spec/                    # Unit tests
   ├── game_spec.lua
   ├── unicorn_spec.lua
   ├── rainbow_spec.lua
   └── main_spec.lua
+graphics/                # Sprite assets
+  ├── unicorn-sprite.png # Player sprite
+  └── troll.png         # 12-frame troll animation sprite sheet
 images/                  # Documentation screenshots
 assets/                  # Game assets
-  └── sounds/           # Sound files (currently procedural)
+  └── sounds/           # Sound files (currently unused, all procedural)
 ```
 
 ## Controls
@@ -174,10 +169,25 @@ You should have received a copy of the GNU General Public License along with thi
 
 ## Assets
 
-- Unicorn sprite: `graphics/unicorn-sprite.png` (cached globally for performance)
-- Troll sprite sheet: `graphics/troll.png` (12-frame animation, auto-detected layout, scaled to 75% for better background fit)
-  - Licensing: Creative Commons Attribution (CC BY) version 3.0
-  - Copyright/Attribution: Original Muscleman/Ogre/Minotaur by Tuomo Untinen (Reemax), reworked by Jordan Irwin (AntumDeluge)
-  - Animation: Cycles through all 12 frames at 12.5 fps while falling (O(1) quad lookup)
-- Rainbow background: Drawn dynamically with cached colors
-- All UI elements: Procedurally generated retro-style dialogs
+### Sprites
+
+**Unicorn sprite:** `graphics/unicorn-sprite.png`
+- Licensing: Creative Commons Attribution (CC BY) version 3.0
+- Copyright/Attribution: magdum
+- Source: [OpenGameArt.org](https://opengameart.org/content/running-unicorn)
+- Usage: Cached globally for performance, rendered with circular collision detection
+
+**Troll sprite sheet:** `graphics/troll.png`
+- Licensing: Creative Commons Attribution (CC BY) version 3.0
+- Copyright/Attribution: Original Muscleman/Ogre/Minotaur by Tuomo Untinen (Reemax), reworked by Jordan Irwin (AntumDeluge)
+- Source: [OpenGameArt.org](https://opengameart.org/)
+- Animation: 12-frame sprite sheet with auto-detected layout (4×3, 3×4, 6×2, etc.), cycles at 12.5 fps, scaled to 75%
+- Collision: Circular distance-based detection with proximity warning sound at 120px radius
+
+### Procedural Assets
+
+- **Icons**: Star, gear, arrows, medals, and unicorn icons drawn programmatically with canvas caching
+- **Rainbow background**: Dynamically rendered with pre-calculated color gradients
+- **UI elements**: Retro-style dialog boxes with gradient fills and borders
+- **Coins**: Procedurally drawn with rotation animation
+- **Sound effects**: All audio generated using LÖVE's SoundData API (see Sound Effects section above)
