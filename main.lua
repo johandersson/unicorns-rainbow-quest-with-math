@@ -47,7 +47,13 @@ function love.keypressed(key)
     elseif key == 'f11' then
         love.window.setFullscreen(true)
     elseif key == 'escape' then
-        local result = love.window.showMessageBox("Exit", "Do you want to exit?", {"Yes", "No"}, "info", true)
+        -- Use game locale for exit dialog
+        local locale = game and game.locale
+        local title = (locale and locale.exit_title) or "Exit"
+        local message = (locale and locale.exit_message) or "Do you want to exit?"
+        local yes = (locale and locale.exit_yes) or "Yes"
+        local no = (locale and locale.exit_no) or "No"
+        local result = love.window.showMessageBox(title, message, {yes, no}, "info", true)
         if result == 1 then
             love.event.quit()
         end

@@ -208,4 +208,59 @@ function IconRenderer:drawStarIcon(x, y, size)
     love.graphics.draw(icon_cache[key], x, y)
 end
 
+-- Draw a settings gear icon
+function IconRenderer:drawSettingsIcon(x, y, size)
+    size = size or self.icon_size
+    local key = "settings_" .. size
+    
+    if not icon_cache[key] then
+        icon_cache[key] = love.graphics.newCanvas(size, size)
+        love.graphics.setCanvas(icon_cache[key])
+        love.graphics.clear(0, 0, 0, 0)
+        
+        local cx, cy = size * 0.5, size * 0.5
+        local outerRadius = size * 0.45
+        local innerRadius = size * 0.3
+        local toothSize = size * 0.12
+        
+        -- Draw gear teeth (8 teeth)
+        love.graphics.setColor(0.7, 0.7, 0.7) -- Gray
+        for i = 0, 7 do
+            local angle = (i * math.pi / 4)
+            local x1 = cx + math.cos(angle) * innerRadius
+            local y1 = cy + math.sin(angle) * innerRadius
+            local x2 = cx + math.cos(angle) * outerRadius
+            local y2 = cy + math.sin(angle) * outerRadius
+            
+            local perpAngle = angle + math.pi / 2
+            local dx = math.cos(perpAngle) * toothSize
+            local dy = math.sin(perpAngle) * toothSize
+            
+            love.graphics.polygon('fill',
+                x1 - dx, y1 - dy,
+                x1 + dx, y1 + dy,
+                x2 + dx, y2 + dy,
+                x2 - dx, y2 - dy
+            )
+        end
+        
+        -- Draw main gear circle
+        love.graphics.setColor(0.8, 0.8, 0.8)
+        love.graphics.circle('fill', cx, cy, innerRadius)
+        
+        -- Center hole
+        love.graphics.setColor(0.3, 0.3, 0.3)
+        love.graphics.circle('fill', cx, cy, size * 0.15)
+        
+        -- Highlight
+        love.graphics.setColor(1, 1, 1, 0.4)
+        love.graphics.circle('fill', cx - size * 0.1, cy - size * 0.1, size * 0.1)
+        
+        love.graphics.setCanvas()
+    end
+    
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.draw(icon_cache[key], x, y)
+end
+
 return IconRenderer

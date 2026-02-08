@@ -23,6 +23,7 @@ return {
     quiz_title = "Math Challenge!",
     time_label = "Time: %ds",
     quiz_hint = "Type the answer and press Enter. +100 coins for correct.",
+    correct_answer_label = "The correct answer was:",
     quiz_correct_msgs = {"Nice! +100 coins","Boom! +100 coins","Correct! +100 coins"},
     quiz_wrong_msgs = {"Oops! Not quite.", "Close, but no cookie.", "Nope — better luck next time."},
     timeout_msgs = {"Time! Try faster next time.", "Out of time!", "Too slow!"},
@@ -89,17 +90,23 @@ return {
     },
     help_copyright = "© 2026 Johan Andersson | License: GPL-3.0",
     help_close = "Press ESC or F1 to close",
+    help_scroll_up = "Scroll Up",
+    help_scroll_down = "Scroll Down",
+    help_error_locale = "ERROR: Locale not loaded",
+    help_error_content = "ERROR: Help content missing",
+    currentLanguage = "en",
     
     -- Settings Dialog
-    settings_title = "⚙️ Settings",
+    settings_title = "Settings",
     settings_language = "Language:",
     settings_language_sv = "Svenska",
     settings_language_en = "English",
     settings_close = "Press ESC or F2 to close",
     settings_saved = "Settings saved!",
+    settings_loading = "Loading...",
     
     -- Scoreboard Pause (S key)
-    scoreboard_pause_title = "⭐ Scoreboard ⭐",
+    scoreboard_pause_title = "Scoreboard",
     scoreboard_continue = "Click or press S to continue",
     scoreboard_encouragement = {
         "Great work!",
@@ -117,5 +124,11 @@ return {
     player_select_hint = "↑↓ to select, Enter to choose",
     or_type_new_name = "Or type new name below:",
     highscore_celebration = "CONGRATULATIONS! New personal best!",
-    play_again = "Press R to play again"
+    play_again = "Press R to play again",
+    
+    -- Exit Dialog
+    exit_title = "Exit",
+    exit_message = "Do you want to exit?",
+    exit_yes = "Yes",
+    exit_no = "No"
 }

@@ -364,10 +364,18 @@ function UIManager:drawScoreboardPause(player_name, current_score, scoreboardMan
     local color = {0.2, 0.5, 0.8}  -- Blue theme
     dialog_renderer:drawRetroDialog(dialog_x, dialog_y, dialog_w, dialog_h, color, {0.05, 0.1, 0.2})
     
-    -- Title
+    -- Title with star icons
     love.graphics.setFont(self.font_large)
     love.graphics.setColor(1, 1, 0)
-    love.graphics.printf(self.L.scoreboard_pause_title or "⭐ Scoreboard ⭐", dialog_x, dialog_y + 20, dialog_w, 'center')
+    local title_text = self.L.scoreboard_pause_title or "Scoreboard"
+    local title_width = self.font_large:getWidth(title_text)
+    local icon_size = 20
+    local total_width = icon_size + 5 + title_width + 5 + icon_size
+    local start_x = dialog_x + (dialog_w - total_width) / 2
+    
+    self.iconRenderer:drawStarIcon(start_x, dialog_y + 22, icon_size)
+    love.graphics.printf(title_text, start_x + icon_size + 5, dialog_y + 20, title_width, 'left')
+    self.iconRenderer:drawStarIcon(start_x + icon_size + 5 + title_width + 5, dialog_y + 22, icon_size)
     
     -- Get player rank and total players
     local all_scores = scoreboardManager:getTopScores(100)

@@ -128,7 +128,7 @@ function SettingsManager:draw()
     -- Fallback if locale not loaded
     if not locale then
         love.graphics.setColor(1, 1, 1)
-        love.graphics.printf("Loading...", 0, h/2, w, "center")
+        love.graphics.printf(locale and locale.settings_loading or "Loading...", 0, h/2, w, "center")
         return
     end
     
@@ -149,9 +149,17 @@ function SettingsManager:draw()
     love.graphics.setColor(0.15, 0.1, 0.25, 0.95)
     love.graphics.rectangle("fill", dialogX, dialogY, dialogW, dialogH)
     
-    -- Title
+    -- Title with settings icon
     love.graphics.setColor(1, 0.84, 0, 1)
-    love.graphics.printf(locale.settings_title, dialogX, dialogY + 20, dialogW, "center")
+    local title_text = locale.settings_title
+    local font = love.graphics.getFont()
+    local title_width = font:getWidth(title_text)
+    local icon_size = 20
+    local total_width = icon_size + 10 + title_width
+    local start_x = dialogX + (dialogW - total_width) / 2
+    
+    self.iconRenderer:drawSettingsIcon(start_x, dialogY + 18, icon_size)
+    love.graphics.printf(title_text, start_x + icon_size + 10, dialogY + 20, dialogW - (start_x + icon_size + 10 - dialogX), "left")
     
     -- Language setting
     local contentY = dialogY + 80

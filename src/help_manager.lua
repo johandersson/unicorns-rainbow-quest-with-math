@@ -37,6 +37,7 @@ function HelpManager:toggle()
     self.isVisible = not self.isVisible
     if self.isVisible then
         self.scrollOffset = 0
+        -- Force fresh locale reference to ensure we get current language
         self:calculateContentHeight()
     end
 end
@@ -47,7 +48,8 @@ function HelpManager:hide()
 end
 
 function HelpManager:calculateContentHeight()
-    local locale = self.game.locale or self.game.L
+    -- Always get fresh locale reference
+    local locale = self.game.locale
     if not locale or not locale.help_content then
         -- Use default height if locale not available
         self.contentHeight = 800
@@ -103,7 +105,21 @@ function HelpManager:draw()
     if not self.isVisible then return end
     
     local w, h = love.graphics.getWidth(), love.graphics.getHeight()
-    local locale = self.game.locale or self.game.L
+    -- Always get fresh locale reference from game
+    local locale = self.game.locale
+    
+    -- Debug fallback - should never happen if game is properly initialized
+    if not locale then
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.printf("ERROR: Locale not loaded", 0, h/2, w, "center")
+        return
+    end
+    
+    if not locale.help_content or #locale.help_content == 0 then
+        love.graphics.setColor(1, 0, 0)
+        love.graphics.printf(locale.help_error_content or "ERROR: Help content missing", 0, h/2, w, "center")
+        return
+    end
     
     -- Dim background
     love.graphics.setColor(0, 0, 0, 0.8)
@@ -125,8 +141,7 @@ function HelpManager:draw()
     -- Title with unicorn icons
     love.graphics.setColor(1, 0.84, 0, 1)
     self.iconRenderer:drawUnicornIcon(dialogX + dialogW / 2 - 100, dialogY + 18, 20)
-    local help_title = (locale and locale.help_title) or " Help & Guide "
-    love.graphics.printf(help_title, dialogX, dialogY + 20, dialogW, "center")
+    love.graphics.printf(locale.help_title or " Help & Guide ", dialogX, dialogY + 20, dialogW, "center")
     self.iconRenderer:drawUnicornIcon(dialogX + dialogW / 2 + 80, dialogY + 18, 20)
     
     -- Scrollable content area
@@ -141,8 +156,8 @@ function HelpManager:draw()
     -- Draw content with scroll offset
     love.graphics.setColor(1, 1, 1, 1)
     local y = contentY - self.scrollOffset
-    
-    -- Ensure help_content exists
+    Draw help content
+    local help_content = locale.help_content
     local help_content = (locale and locale.help_content) or {}
     for i, line in ipairs(help_content) do
         if line == "" then
@@ -165,24 +180,22 @@ function HelpManager:draw()
     if self.scrollOffset > 0 then
         love.graphics.setColor(1, 0.84, 0, 0.8)
         self.iconRenderer:drawArrowIcon(contentX + contentW / 2 - 50, contentY - 27, "up", 12)
-        love.graphics.printf("Scroll Up", contentX, contentY - 25, contentW, "center")
+        love.graphics.printf(locale.help_scroll_up or "Scroll Up", contentX, contentY - 25, contentW, "center")
     end
     
     if self.scrollOffset < self.maxScroll then
         love.graphics.setColor(1, 0.84, 0, 0.8)
         self.iconRenderer:drawArrowIcon(contentX + contentW / 2 - 50, contentY + contentH + 3, "down", 12)
-        love.graphics.printf("Scroll Down", contentX, contentY + contentH + 5, contentW, "center")
+        love.graphics.printf(locale.help_scroll_down or "Scroll Down", contentX, contentY + contentH + 5, contentW, "center")
     end
     
     -- Copyright footer
     love.graphics.setColor(0.7, 0.7, 0.7, 1)
-    local copyright = (locale and locale.help_copyright) or "© 2026"
-    love.graphics.printf(copyright, dialogX, dialogY + dialogH - 60, dialogW, "center")
+    love.graphics.printf(locale.help_copyright or "© 2026", dialogX, dialogY + dialogH - 60, dialogW, "center")
     
     -- Close instruction
     love.graphics.setColor(1, 0.84, 0, 1)
-    local close_msg = (locale and locale.help_close) or "Press ESC or F1 to close"
-    love.graphics.printf(close_msg, dialogX, dialogY + dialogH - 35, dialogW, "center")
+    love.graphics.printf(locale.help_close or "Press ESC or F1 to close", dialogX, dialogY + dialogH - 35, dialogW, "center")
 end
 
 return HelpManager

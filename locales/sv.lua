@@ -90,17 +90,23 @@ return {
     },
     help_copyright = "© 2026 Johan Andersson | Licens: GPL-3.0",
     help_close = "Tryck ESC eller F1 för att stänga",
+    help_scroll_up = "Scrolla upp",
+    help_scroll_down = "Scrolla ner",
+    help_error_locale = "FEL: Språkfil inte laddad",
+    help_error_content = "FEL: Hjälpinnehåll saknas",
+    currentLanguage = "sv",
     
     -- Settings Dialog
-    settings_title = "⚙️ Inställningar",
+    settings_title = "Inställningar",
     settings_language = "Språk:",
     settings_language_sv = "Svenska",
     settings_language_en = "English",
     settings_close = "Tryck ESC eller F2 för att stänga",
     settings_saved = "Inställningar sparade!",
+    settings_loading = "Laddar...",
     
     -- Scoreboard Pause (S key)
-    scoreboard_pause_title = "⭐ Topplista ⭐",
+    scoreboard_pause_title = "Topplista",
     scoreboard_continue = "Klicka eller tryck S för att fortsätta",
     scoreboard_encouragement = {
         "Bra jobbat!",
@@ -118,5 +124,11 @@ return {
     player_select_hint = "↑↓ för att välja, Enter för att bekräfta",
     or_type_new_name = "Eller skriv nytt namn nedan:",
     highscore_celebration = "GRATTIS! Nytt personbästa!",
-    play_again = "Tryck R för att spela igen"
+    play_again = "Tryck R för att spela igen",
+    
+    -- Exit Dialog
+    exit_title = "Avsluta",
+    exit_message = "Vill du avsluta?",
+    exit_yes = "Ja",
+    exit_no = "Nej"
 }
