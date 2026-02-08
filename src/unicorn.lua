@@ -26,7 +26,7 @@ local sprite_height = 0
 
 -- Pre-load sprite once (memoization for image loading)
 if not unicorn_sprite then
-    unicorn_sprite = love.graphics.newImage('unicorn-sprite.png')
+    unicorn_sprite = love.graphics.newImage('graphics/unicorn-sprite.png')
     sprite_width, sprite_height = unicorn_sprite:getDimensions()
     quadUp = love.graphics.newQuad(0, 0, sprite_width, sprite_height/2, sprite_width, sprite_height)
     quadDown = love.graphics.newQuad(0, sprite_height/2, sprite_width, sprite_height/2, sprite_width, sprite_height)

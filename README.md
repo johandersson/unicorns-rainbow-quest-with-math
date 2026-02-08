@@ -174,7 +174,10 @@ You should have received a copy of the GNU General Public License along with thi
 
 ## Assets
 
-- Unicorn sprite: `unicorn-sprite.png` (cached globally for performance)
-- Troll graphics: Pre-rendered to canvas at module load
+- Unicorn sprite: `graphics/unicorn-sprite.png` (cached globally for performance)
+- Troll sprite sheet: `graphics/troll.png` (12-frame animation, auto-detected layout, scaled to 75% for better background fit)
+  - Licensing: Creative Commons Attribution (CC BY) version 3.0
+  - Copyright/Attribution: Original Muscleman/Ogre/Minotaur by Tuomo Untinen (Reemax), reworked by Jordan Irwin (AntumDeluge)
+  - Animation: Cycles through all 12 frames at 12.5 fps while falling (O(1) quad lookup)
 - Rainbow background: Drawn dynamically with cached colors
 - All UI elements: Procedurally generated retro-style dialogs
