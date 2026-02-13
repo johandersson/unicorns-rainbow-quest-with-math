@@ -50,17 +50,36 @@ local function ensureCache(rr)
 
     local ox = cw / 2
     local oy = ch / 2
-    -- Draw static body and head once into the canvas
-    lg.setColor(0.38, 0.65, 0.35)
+    -- body
+    lg.setColor(0.30, 0.55, 0.30) -- slightly darker green for meaner look
     lg.ellipse('fill', ox, oy + rr*0.6, rr*0.9, rr*0.7)
 
-    lg.setColor(0.9, 0.78, 0.6)
+    -- head base
+    lg.setColor(0.85, 0.72, 0.5)
     lg.circle('fill', ox, oy - rr*0.6, rr*0.6)
+    -- ears
     lg.polygon('fill', ox - rr*0.6, oy - rr*0.6, ox - rr*0.9, oy - rr*0.9, ox - rr*0.4, oy - rr*0.85)
     lg.polygon('fill', ox + rr*0.6, oy - rr*0.6, ox + rr*0.9, oy - rr*0.9, ox + rr*0.4, oy - rr*0.85)
 
-    lg.setColor(0.7,0.4,0.2)
+    -- tuft
+    lg.setColor(0.6,0.35,0.15)
     lg.polygon('fill', ox, oy - rr*1.02, ox - rr*0.06, oy - rr*0.82, ox + rr*0.06, oy - rr*0.82)
+
+    -- mouth (dark) and static sharp teeth (white triangles)
+    local mouth_top_y = oy - rr*0.45
+    local mouth_w = rr * 0.5
+    lg.setColor(0.55, 0.05, 0.05)
+    lg.rectangle('fill', ox - mouth_w, mouth_top_y, mouth_w*2, rr*0.22)
+    -- teeth: several small triangles across mouth
+    lg.setColor(1,1,1)
+    local teeth_count = 5
+    local t_w = (mouth_w*2) / (teeth_count * 2)
+    for i = 1, teeth_count do
+        local tx = ox - mouth_w + (i-1) * (2*t_w) + t_w*0.1
+        local y1 = mouth_top_y
+        local y2 = mouth_top_y + rr*0.22
+        lg.polygon('fill', tx, y1, tx + t_w, y2, tx + 2*t_w, y1)
+    end
 
     lg.setColor(1,1,1)
     lg.setLineWidth(1)
@@ -163,18 +182,36 @@ function Troll:draw()
     lg.line(cx - r*0.3, cy + r*1.0, cx - r*0.3 + sin(self.limb_phase)*r*0.25, cy + r*1.6)
     lg.line(cx + r*0.3, cy + r*1.0, cx + r*0.3 - sin(self.limb_phase)*r*0.25, cy + r*1.6)
 
-    -- eyes and nose (small dynamic touches)
+    -- angry eyes: narrow white slits + slanted eyebrows for angry look
+    local eye_offset_x = r*0.18
+    local eye_y = cy - r*0.68
+    local pupil_x_offset = sin(self.limb_phase) * r*0.02
+
+    -- white eye slits (smaller, more menacing)
     lg.setColor(1,1,1)
-    lg.circle('fill', cx - r*0.18, cy - r*0.68 + sin(self.bob_timer)*r*0.01, r*0.12)
-    lg.circle('fill', cx + r*0.18, cy - r*0.68 + sin(self.bob_timer+0.5)*r*0.01, r*0.12)
+    lg.ellipse('fill', cx - eye_offset_x, eye_y + sin(self.bob_timer)*r*0.006, r*0.08, r*0.04)
+    lg.ellipse('fill', cx + eye_offset_x, eye_y + sin(self.bob_timer+0.5)*r*0.006, r*0.08, r*0.04)
+
+    -- pupils (black, centered but jittered for menace)
     lg.setColor(0,0,0)
-    lg.circle('fill', cx - r*0.18 + sin(self.bob_timer)*r*0.02, cy - r*0.68, r*0.06)
-    lg.circle('fill', cx + r*0.18 + sin(self.bob_timer+0.5)*r*0.02, cy - r*0.68, r*0.06)
-    lg.setColor(0.95,0.7,0.55)
+    lg.circle('fill', cx - eye_offset_x + pupil_x_offset, eye_y, r*0.03)
+    lg.circle('fill', cx + eye_offset_x + pupil_x_offset, eye_y, r*0.03)
+
+    -- slanted angry eyebrows (dark lines)
+    lg.setColor(0.1,0.05,0.05)
+    lg.setLineWidth(max(1, r*0.06))
+    lg.line(cx - eye_offset_x - r*0.06, eye_y - r*0.08, cx - eye_offset_x + r*0.06, eye_y - r*0.02)
+    lg.line(cx + eye_offset_x + r*0.06, eye_y - r*0.08, cx + eye_offset_x - r*0.06, eye_y - r*0.02)
+    lg.setLineWidth(1)
+
+    -- nose/cheek highlight (kept subtle)
+    lg.setColor(0.9,0.6,0.45)
     lg.polygon('fill', cx, cy - r*0.58, cx - r*0.06, cy - r*0.44, cx + r*0.06, cy - r*0.44)
-    lg.setColor(0.6,0.1,0.1)
+
+    -- mouth outline (dark) to emphasize teeth
+    lg.setColor(0.5, 0.05, 0.05)
     lg.setLineWidth(2)
-    lg.arc('line', 'open', cx, cy - r*0.45, r*0.18, math.pi*0.1, math.pi*0.9)
+    lg.rectangle('line', cx - r*0.5, cy - r*0.45, r*1.0, r*0.22)
     lg.setLineWidth(1)
 end
 
