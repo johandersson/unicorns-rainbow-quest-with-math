@@ -87,48 +87,20 @@ function Troll:draw()
         local oy = ch / 2
         local rr = r
 
-        -- body
+        -- static parts: body and head base (arms/legs/eyes drawn dynamically for animation)
         love.graphics.setColor(0.38, 0.65, 0.35)
         love.graphics.ellipse('fill', ox, oy + rr*0.6, rr*0.9, rr*0.7)
 
-        -- arms
-        local arm_length = rr * 0.9
-        local arm_offset_y = oy + rr*0.2
-        love.graphics.setLineWidth(math.max(2, rr*0.12))
-        love.graphics.line(ox - rr*0.6, arm_offset_y, ox - rr*0.6 - arm_length, arm_offset_y + rr*0.2)
-        love.graphics.line(ox + rr*0.6, arm_offset_y, ox + rr*0.6 + arm_length, arm_offset_y + rr*0.2)
-
-        -- legs
-        love.graphics.setLineWidth(math.max(2, rr*0.14))
-        love.graphics.line(ox - rr*0.3, oy + rr*1.0, ox - rr*0.3, oy + rr*1.6)
-        love.graphics.line(ox + rr*0.3, oy + rr*1.0, ox + rr*0.3, oy + rr*1.6)
-
-        -- head
+        -- head base
         love.graphics.setColor(0.9, 0.78, 0.6)
         love.graphics.circle('fill', ox, oy - rr*0.6, rr*0.6)
 
-        -- ears
+        -- ears (static)
+        love.graphics.setColor(0.9, 0.78, 0.6)
         love.graphics.polygon('fill', ox - rr*0.6, oy - rr*0.6, ox - rr*0.9, oy - rr*0.9, ox - rr*0.4, oy - rr*0.85)
         love.graphics.polygon('fill', ox + rr*0.6, oy - rr*0.6, ox + rr*0.9, oy - rr*0.9, ox + rr*0.4, oy - rr*0.85)
 
-        -- eyes
-        love.graphics.setColor(1,1,1)
-        love.graphics.circle('fill', ox - rr*0.18, oy - rr*0.68, rr*0.12)
-        love.graphics.circle('fill', ox + rr*0.18, oy - rr*0.68, rr*0.12)
-        love.graphics.setColor(0,0,0)
-        love.graphics.circle('fill', ox - rr*0.18, oy - rr*0.68, rr*0.06)
-        love.graphics.circle('fill', ox + rr*0.18, oy - rr*0.68, rr*0.06)
-
-        -- nose
-        love.graphics.setColor(0.95,0.7,0.55)
-        love.graphics.polygon('fill', ox, oy - rr*0.58, ox - rr*0.06, oy - rr*0.44, ox + rr*0.06, oy - rr*0.44)
-
-        -- mouth
-        love.graphics.setColor(0.6,0.1,0.1)
-        love.graphics.setLineWidth(2)
-        love.graphics.arc('line', 'open', ox, oy - rr*0.45, rr*0.18, math.pi*0.1, math.pi*0.9)
-
-        -- tuft
+        -- tuft (static)
         love.graphics.setColor(0.7,0.4,0.2)
         love.graphics.polygon('fill', ox, oy - rr*1.02, ox - rr*0.06, oy - rr*0.82, ox + rr*0.06, oy - rr*0.82)
 
@@ -144,6 +116,44 @@ function Troll:draw()
     -- draw cached canvas centered at troll position
     love.graphics.setColor(1,1,1)
     love.graphics.draw(cache_entry.canvas, cx, cy, 0, 1, 1, cache_entry.w/2, cache_entry.h/2)
+
+    -- draw dynamic limbs and facial details so they can animate
+    local arm_length = r * 0.9
+    -- If falling fast (higher speed) raise arms and increase wave
+    local falling = (self.speed or 0) > 260
+    local arm_base_y = cy + (falling and (-r*0.1) or (r*0.2))
+    local wave = math.sin(self.limb_phase) * (r*0.25) * (falling and 1.8 or 1.0)
+    love.graphics.setColor(0.38, 0.65, 0.35)
+    love.graphics.setLineWidth(math.max(2, r*0.12))
+    -- left arm: from shoulder to animated tip
+    local l_sh_x, l_sh_y = cx - r*0.6, arm_base_y
+    local l_tip_x = l_sh_x - arm_length * (0.6 + 0.2 * math.sin(self.limb_phase))
+    local l_tip_y = l_sh_y + r*0.2 + wave
+    love.graphics.line(l_sh_x, l_sh_y, l_tip_x, l_tip_y)
+    -- right arm
+    local r_sh_x, r_sh_y = cx + r*0.6, arm_base_y
+    local r_tip_x = r_sh_x + arm_length * (0.6 + 0.2 * math.sin(self.limb_phase + 1.2))
+    local r_tip_y = r_sh_y + r*0.2 - wave
+    love.graphics.line(r_sh_x, r_sh_y, r_tip_x, r_tip_y)
+
+    -- legs (subtle swing)
+    love.graphics.setLineWidth(math.max(2, r*0.14))
+    love.graphics.line(cx - r*0.3, cy + r*1.0, cx - r*0.3 + math.sin(self.limb_phase)*r*0.25, cy + r*1.6)
+    love.graphics.line(cx + r*0.3, cy + r*1.0, cx + r*0.3 - math.sin(self.limb_phase)*r*0.25, cy + r*1.6)
+
+    -- eyes and nose (small dynamic touches)
+    love.graphics.setColor(1,1,1)
+    love.graphics.circle('fill', cx - r*0.18, cy - r*0.68 + math.sin(self.bob_timer)*r*0.01, r*0.12)
+    love.graphics.circle('fill', cx + r*0.18, cy - r*0.68 + math.sin(self.bob_timer+0.5)*r*0.01, r*0.12)
+    love.graphics.setColor(0,0,0)
+    love.graphics.circle('fill', cx - r*0.18 + math.sin(self.bob_timer)*r*0.02, cy - r*0.68, r*0.06)
+    love.graphics.circle('fill', cx + r*0.18 + math.sin(self.bob_timer+0.5)*r*0.02, cy - r*0.68, r*0.06)
+    love.graphics.setColor(0.95,0.7,0.55)
+    love.graphics.polygon('fill', cx, cy - r*0.58, cx - r*0.06, cy - r*0.44, cx + r*0.06, cy - r*0.44)
+    love.graphics.setColor(0.6,0.1,0.1)
+    love.graphics.setLineWidth(2)
+    love.graphics.arc('line', 'open', cx, cy - r*0.45, r*0.18, math.pi*0.1, math.pi*0.9)
+    love.graphics.setLineWidth(1)
 end
 
 return Troll
