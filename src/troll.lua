@@ -65,61 +65,85 @@ local function setColorHex(hex)
 end
 
 function Troll:draw()
-    -- simple, stylized troll drawn with primitives
+    -- Use cached canvas when available (keyed by radius)
     local bob = math.sin(self.bob_timer) * self.bob_amount
     local cx, cy = self.x, self.y + bob
     local r = self.radius
 
-    -- body
-    love.graphics.setColor(0.38, 0.65, 0.35)
-    love.graphics.ellipse('fill', cx, cy + r*0.6, r*0.9, r*0.7)
+    Troll._canvas_cache = Troll._canvas_cache or {}
+    local key = tostring(math.floor(r))
+    local cache_entry = Troll._canvas_cache[key]
+    if not cache_entry then
+        -- create a temporary canvas and render the troll once
+        local cw = math.ceil(r * 3)
+        local ch = math.ceil(r * 3)
+        local canvas = love.graphics.newCanvas(cw, ch)
+        local prev_canvas = love.graphics.getCanvas()
+        love.graphics.setCanvas(canvas)
+        love.graphics.clear(0,0,0,0)
 
-    -- arms (swinging)
-    local arm_length = r * 0.9
-    local arm_offset_y = cy + r*0.2
-    local swing = math.sin(self.limb_phase) * (r*0.25)
-    love.graphics.setColor(0.38, 0.65, 0.35)
-    love.graphics.setLineWidth(math.max(2, r*0.12))
-    love.graphics.line(cx - r*0.6, arm_offset_y, cx - r*0.6 - arm_length + swing, arm_offset_y + r*0.2)
-    love.graphics.line(cx + r*0.6, arm_offset_y, cx + r*0.6 + arm_length - swing, arm_offset_y + r*0.2)
+        -- draw at center of canvas
+        local ox = cw / 2
+        local oy = ch / 2
+        local rr = r
 
-    -- legs
-    love.graphics.setLineWidth(math.max(2, r*0.14))
-    love.graphics.line(cx - r*0.3, cy + r*1.0, cx - r*0.3 + math.sin(self.limb_phase)*r*0.25, cy + r*1.6)
-    love.graphics.line(cx + r*0.3, cy + r*1.0, cx + r*0.3 - math.sin(self.limb_phase)*r*0.25, cy + r*1.6)
+        -- body
+        love.graphics.setColor(0.38, 0.65, 0.35)
+        love.graphics.ellipse('fill', ox, oy + rr*0.6, rr*0.9, rr*0.7)
 
-    -- head
-    love.graphics.setColor(0.9, 0.78, 0.6)
-    love.graphics.circle('fill', cx, cy - r*0.6, r*0.6)
+        -- arms
+        local arm_length = rr * 0.9
+        local arm_offset_y = oy + rr*0.2
+        love.graphics.setLineWidth(math.max(2, rr*0.12))
+        love.graphics.line(ox - rr*0.6, arm_offset_y, ox - rr*0.6 - arm_length, arm_offset_y + rr*0.2)
+        love.graphics.line(ox + rr*0.6, arm_offset_y, ox + rr*0.6 + arm_length, arm_offset_y + rr*0.2)
 
-    -- ears
-    love.graphics.setColor(0.9, 0.78, 0.6)
-    love.graphics.polygon('fill', cx - r*0.6, cy - r*0.6, cx - r*0.9, cy - r*0.9, cx - r*0.4, cy - r*0.85)
-    love.graphics.polygon('fill', cx + r*0.6, cy - r*0.6, cx + r*0.9, cy - r*0.9, cx + r*0.4, cy - r*0.85)
+        -- legs
+        love.graphics.setLineWidth(math.max(2, rr*0.14))
+        love.graphics.line(ox - rr*0.3, oy + rr*1.0, ox - rr*0.3, oy + rr*1.6)
+        love.graphics.line(ox + rr*0.3, oy + rr*1.0, ox + rr*0.3, oy + rr*1.6)
 
-    -- eyes
+        -- head
+        love.graphics.setColor(0.9, 0.78, 0.6)
+        love.graphics.circle('fill', ox, oy - rr*0.6, rr*0.6)
+
+        -- ears
+        love.graphics.polygon('fill', ox - rr*0.6, oy - rr*0.6, ox - rr*0.9, oy - rr*0.9, ox - rr*0.4, oy - rr*0.85)
+        love.graphics.polygon('fill', ox + rr*0.6, oy - rr*0.6, ox + rr*0.9, oy - rr*0.9, ox + rr*0.4, oy - rr*0.85)
+
+        -- eyes
+        love.graphics.setColor(1,1,1)
+        love.graphics.circle('fill', ox - rr*0.18, oy - rr*0.68, rr*0.12)
+        love.graphics.circle('fill', ox + rr*0.18, oy - rr*0.68, rr*0.12)
+        love.graphics.setColor(0,0,0)
+        love.graphics.circle('fill', ox - rr*0.18, oy - rr*0.68, rr*0.06)
+        love.graphics.circle('fill', ox + rr*0.18, oy - rr*0.68, rr*0.06)
+
+        -- nose
+        love.graphics.setColor(0.95,0.7,0.55)
+        love.graphics.polygon('fill', ox, oy - rr*0.58, ox - rr*0.06, oy - rr*0.44, ox + rr*0.06, oy - rr*0.44)
+
+        -- mouth
+        love.graphics.setColor(0.6,0.1,0.1)
+        love.graphics.setLineWidth(2)
+        love.graphics.arc('line', 'open', ox, oy - rr*0.45, rr*0.18, math.pi*0.1, math.pi*0.9)
+
+        -- tuft
+        love.graphics.setColor(0.7,0.4,0.2)
+        love.graphics.polygon('fill', ox, oy - rr*1.02, ox - rr*0.06, oy - rr*0.82, ox + rr*0.06, oy - rr*0.82)
+
+        love.graphics.setColor(1,1,1)
+        love.graphics.setLineWidth(1)
+
+        love.graphics.setCanvas(prev_canvas)
+
+        cache_entry = {canvas = canvas, w = cw, h = ch}
+        Troll._canvas_cache[key] = cache_entry
+    end
+
+    -- draw cached canvas centered at troll position
     love.graphics.setColor(1,1,1)
-    love.graphics.circle('fill', cx - r*0.18, cy - r*0.68, r*0.12)
-    love.graphics.circle('fill', cx + r*0.18, cy - r*0.68, r*0.12)
-    love.graphics.setColor(0,0,0)
-    love.graphics.circle('fill', cx - r*0.18 + math.sin(self.bob_timer)*r*0.02, cy - r*0.68, r*0.06)
-    love.graphics.circle('fill', cx + r*0.18 + math.sin(self.bob_timer+0.5)*r*0.02, cy - r*0.68, r*0.06)
-
-    -- nose
-    love.graphics.setColor(0.95,0.7,0.55)
-    love.graphics.polygon('fill', cx, cy - r*0.58, cx - r*0.06, cy - r*0.44, cx + r*0.06, cy - r*0.44)
-
-    -- mouth (simple)
-    love.graphics.setColor(0.6,0.1,0.1)
-    love.graphics.setLineWidth(2)
-    love.graphics.arc('line', 'open', cx, cy - r*0.45, r*0.18, math.pi*0.1, math.pi*0.9)
-
-    -- optional small tuft/horn
-    love.graphics.setColor(0.7,0.4,0.2)
-    love.graphics.polygon('fill', cx, cy - r*1.02, cx - r*0.06, cy - r*0.82, cx + r*0.06, cy - r*0.82)
-
-    love.graphics.setColor(1,1,1)
-    love.graphics.setLineWidth(1)
+    love.graphics.draw(cache_entry.canvas, cx, cy, 0, 1, 1, cache_entry.w/2, cache_entry.h/2)
 end
 
 return Troll

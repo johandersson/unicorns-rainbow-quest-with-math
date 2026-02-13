@@ -98,9 +98,15 @@ function ProgressionSystem:levelUp()
 end
 
 function ProgressionSystem:getTrollSpawnCount()
-    -- Returns number of trolls to spawn based on stage
-    local prob = math.min(0.25 + self.stage * 0.05, 0.8)
-    return (math.random() < prob) and 1 or 0
+    -- Gradually increase spawn count and probability as stage advances
+    local base = 1
+    local extra = math.floor((self.stage - 1) / 3) -- +1 every 3 stages
+    local max_spawn = math.min(base + extra, 4)
+    local prob_more = math.min(0.25 + self.stage * 0.03, 0.9)
+    if math.random() < prob_more then
+        return math.random(1, max_spawn)
+    end
+    return 1
 end
 
 function ProgressionSystem:getTrollSpeed()

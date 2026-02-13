@@ -209,15 +209,15 @@ function Game:update(dt)
                 self:addTroll(sx, -80, speed)
             end
 
-            -- Start quiz
+            -- Show retro level-up alert and defer quiz start until alert completes
             self.stateManager.paused = true
-            if self.quizManager then
-                self.quizManager:start()
-            else
-                self.quiz_active = true
-                self.quiz_input = ""
-                self.quiz_timer = self.quiz_time_limit
-            end
+            self.level_up_alert = {
+                title = (self.L and self.L.level_up_title) or "Level Up!",
+                message = (self.L and self.L.level_up_msg) or ("Stage " .. tostring(self.progressionSystem.stage) .. " reached!"),
+                timer = 2.0
+            }
+            self.level_up_pending_quiz = true
+            -- quiz will start after alert expires (handled in update loop)
         elseif self.progressionSystem:needsMoreCoins(progress_coins) then
             local remaining = self.progressionSystem:getRemainingCoins(progress_coins)
             local msgfmt = (self.L and self.L.collect_more) or "Collect %d more coins to level up"
@@ -237,6 +237,25 @@ function Game:update(dt)
             local sx = math.random(0, self.width)
             local speed = self.progressionSystem:getTrollSpeed()
             self:addTroll(sx, -80, speed)
+        end
+    end
+
+    -- If a level-up alert is active, count it down and start the quiz when done
+    if self.level_up_alert then
+        self.level_up_alert.timer = self.level_up_alert.timer - dt
+        if self.level_up_alert.timer <= 0 then
+            -- clear alert and start quiz if pending
+            self.level_up_alert = nil
+            if self.level_up_pending_quiz then
+                self.level_up_pending_quiz = false
+                if self.quizManager then
+                    self.quizManager:start()
+                else
+                    self.quiz_active = true
+                    self.quiz_input = ""
+                    self.quiz_timer = self.quiz_time_limit
+                end
+            end
         end
     end
 
@@ -338,6 +357,21 @@ function Game:draw()
             visual_type = self.quiz_visual_type
         }
         self.dialogRenderer:drawQuizOverlay(quiz_data, self.uiManager._locale_cache, self.uiManager.font_large, self.uiManager.font_small)
+    end
+
+    -- Level-up retro alert (displayed before the quiz)
+    if self.level_up_alert then
+        local w = math.min(480, self.width - 80)
+        local h = 120
+        local x = (self.width - w) / 2
+        local y = (self.height - h) / 2 - 40
+        self.dialogRenderer:drawRetroDialog(x, y, w, h, {0.8, 0.6, 0.2}, {0.05, 0.05, 0.12})
+        love.graphics.setFont(self.uiManager.font_large)
+        love.graphics.setColor(1, 1, 0.8)
+        love.graphics.printf(self.level_up_alert.title or "Level Up!", x, y + 18, w, 'center')
+        love.graphics.setFont(self.uiManager.font_small)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf(self.level_up_alert.message or "", x, y + 54, w, 'center')
     end
 
     -- Quiz result message
