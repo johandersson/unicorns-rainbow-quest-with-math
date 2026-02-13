@@ -10,6 +10,8 @@
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+]]
+
 Troll = {}
 
 local DEFAULT_RADIUS = 24
@@ -118,12 +120,6 @@ function Troll:draw()
 
     love.graphics.setColor(1,1,1)
     love.graphics.setLineWidth(1)
-end
-
-return Troll
-        frame_width / 2,
-        frame_height / 2
-    )
 end
 
 return Troll
