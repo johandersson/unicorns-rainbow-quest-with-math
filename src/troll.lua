@@ -10,76 +10,22 @@
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program. If not, see <https://www.gnu.org/licenses/>.
---]]
-
 Troll = {}
 
-local troll_image = nil
-local troll_quads = nil  -- Cache all 12 frames for O(1) access
-local frame_width = 0
-local frame_height = 0
-local TROLL_SCALE = 0.75  -- Make troll 25% smaller to fit better in background
-local TROLL_COLLISION_RADIUS_SQ = 784  -- 28^2 - tighter collision (was 1600)
-local FRAMES_COUNT = 12
-local ANIMATION_SPEED = 0.08  -- Seconds per frame (12.5 fps)
+local DEFAULT_RADIUS = 24
 
--- Load troll sprite sheet and pre-cache all quads once (singleton pattern)
-if not troll_image then
-    troll_image = love.graphics.newImage('graphics/troll.png')
-    local sprite_width, sprite_height = troll_image:getDimensions()
-    
-    -- Determine layout based on aspect ratio (detect 4x3, 3x4, 6x2, 2x6, 12x1, or 1x12)
-    local cols, rows
-    if sprite_width > sprite_height then
-        -- Wider sprite: try 12x1, 6x2, 4x3
-        if sprite_width / sprite_height > 5 then
-            cols, rows = 12, 1
-        elseif sprite_width / sprite_height > 2 then
-            cols, rows = 6, 2
-        else
-            cols, rows = 4, 3
-        end
-    else
-        -- Taller sprite: try 1x12, 2x6, 3x4
-        if sprite_height / sprite_width > 5 then
-            cols, rows = 1, 12
-        elseif sprite_height / sprite_width > 2 then
-            cols, rows = 2, 6
-        else
-            cols, rows = 3, 4
-        end
-    end
-    
-    frame_width = sprite_width / cols
-    frame_height = sprite_height / rows
-    
-    -- Pre-cache all 12 quads for O(1) frame access
-    troll_quads = {}
-    for i = 0, FRAMES_COUNT - 1 do
-        local col = i % cols
-        local row = math.floor(i / cols)
-        troll_quads[i + 1] = love.graphics.newQuad(
-            col * frame_width,
-            row * frame_height,
-            frame_width,
-            frame_height,
-            sprite_width,
-            sprite_height
-        )
-    end
-end
-
-function Troll:new(x, y, speed)
+function Troll:new(x, y, speed, radius)
+    local r = radius or DEFAULT_RADIUS
     local obj = {
         x = x,
         y = y,
-        speed = speed,
-        anim_timer = 0,  -- Animation timer for frame cycling
-        current_frame = 1  -- Current animation frame (1-12)
+        speed = speed or 180,
+        radius = r,
+        collision_radius_sq = (r + 8) * (r + 8), -- some buffer
+        bob_timer = 0,
+        bob_speed = 6 + math.random() * 4,
+        bob_amount = 4 + math.random() * 3,
+        limb_phase = math.random() * 2 * math.pi
     }
     setmetatable(obj, self)
     self.__index = self
@@ -89,42 +35,92 @@ end
 function Troll:reset(x, y, speed)
     self.x = x
     self.y = y
-    self.speed = speed
-    self.anim_timer = 0
-    self.current_frame = 1
+    self.speed = speed or self.speed
+    self.bob_timer = 0
+    self.limb_phase = math.random() * 2 * math.pi
 end
 
 function Troll:update(dt, target)
     -- vertical movement
     self.y = self.y + self.speed * dt
-    -- horizontal homing towards target if provided (makes trolls harder to escape)
+    -- horizontal homing towards target if provided
     if target and target.x then
         local dx = target.x - self.x
-        -- Pre-calculate homing displacement (memoize constant multiplication)
         local max_move = 120 * dt
-        -- Clamp movement (optimized single-pass clamping)
         self.x = self.x + math.max(-max_move, math.min(max_move, dx))
     end
-    
-    -- Animation cycling through frames 1-12 (O(1) frame calculation)
-    self.anim_timer = self.anim_timer + dt
-    if self.anim_timer >= ANIMATION_SPEED then
-        self.anim_timer = self.anim_timer - ANIMATION_SPEED
-        self.current_frame = (self.current_frame % FRAMES_COUNT) + 1  -- Cycle 1->12->1
-    end
+
+    -- bobbing and limb animation
+    self.bob_timer = self.bob_timer + dt * self.bob_speed
+    self.limb_phase = self.limb_phase + dt * (self.bob_speed * 0.9)
+end
+
+local function setColorHex(hex)
+    local r = ((hex >> 16) & 0xFF) / 255
+    local g = ((hex >> 8) & 0xFF) / 255
+    local b = (hex & 0xFF) / 255
+    love.graphics.setColor(r, g, b)
 end
 
 function Troll:draw()
+    -- simple, stylized troll drawn with primitives
+    local bob = math.sin(self.bob_timer) * self.bob_amount
+    local cx, cy = self.x, self.y + bob
+    local r = self.radius
+
+    -- body
+    love.graphics.setColor(0.38, 0.65, 0.35)
+    love.graphics.ellipse('fill', cx, cy + r*0.6, r*0.9, r*0.7)
+
+    -- arms (swinging)
+    local arm_length = r * 0.9
+    local arm_offset_y = cy + r*0.2
+    local swing = math.sin(self.limb_phase) * (r*0.25)
+    love.graphics.setColor(0.38, 0.65, 0.35)
+    love.graphics.setLineWidth(math.max(2, r*0.12))
+    love.graphics.line(cx - r*0.6, arm_offset_y, cx - r*0.6 - arm_length + swing, arm_offset_y + r*0.2)
+    love.graphics.line(cx + r*0.6, arm_offset_y, cx + r*0.6 + arm_length - swing, arm_offset_y + r*0.2)
+
+    -- legs
+    love.graphics.setLineWidth(math.max(2, r*0.14))
+    love.graphics.line(cx - r*0.3, cy + r*1.0, cx - r*0.3 + math.sin(self.limb_phase)*r*0.25, cy + r*1.6)
+    love.graphics.line(cx + r*0.3, cy + r*1.0, cx + r*0.3 - math.sin(self.limb_phase)*r*0.25, cy + r*1.6)
+
+    -- head
+    love.graphics.setColor(0.9, 0.78, 0.6)
+    love.graphics.circle('fill', cx, cy - r*0.6, r*0.6)
+
+    -- ears
+    love.graphics.setColor(0.9, 0.78, 0.6)
+    love.graphics.polygon('fill', cx - r*0.6, cy - r*0.6, cx - r*0.9, cy - r*0.9, cx - r*0.4, cy - r*0.85)
+    love.graphics.polygon('fill', cx + r*0.6, cy - r*0.6, cx + r*0.9, cy - r*0.9, cx + r*0.4, cy - r*0.85)
+
+    -- eyes
     love.graphics.setColor(1,1,1)
-    -- O(1) quad lookup from pre-cached array
-    love.graphics.draw(
-        troll_image,
-        troll_quads[self.current_frame],
-        self.x,
-        self.y,
-        0,
-        TROLL_SCALE,
-        TROLL_SCALE,
+    love.graphics.circle('fill', cx - r*0.18, cy - r*0.68, r*0.12)
+    love.graphics.circle('fill', cx + r*0.18, cy - r*0.68, r*0.12)
+    love.graphics.setColor(0,0,0)
+    love.graphics.circle('fill', cx - r*0.18 + math.sin(self.bob_timer)*r*0.02, cy - r*0.68, r*0.06)
+    love.graphics.circle('fill', cx + r*0.18 + math.sin(self.bob_timer+0.5)*r*0.02, cy - r*0.68, r*0.06)
+
+    -- nose
+    love.graphics.setColor(0.95,0.7,0.55)
+    love.graphics.polygon('fill', cx, cy - r*0.58, cx - r*0.06, cy - r*0.44, cx + r*0.06, cy - r*0.44)
+
+    -- mouth (simple)
+    love.graphics.setColor(0.6,0.1,0.1)
+    love.graphics.setLineWidth(2)
+    love.graphics.arc('line', 'open', cx, cy - r*0.45, r*0.18, math.pi*0.1, math.pi*0.9)
+
+    -- optional small tuft/horn
+    love.graphics.setColor(0.7,0.4,0.2)
+    love.graphics.polygon('fill', cx, cy - r*1.02, cx - r*0.06, cy - r*0.82, cx + r*0.06, cy - r*0.82)
+
+    love.graphics.setColor(1,1,1)
+    love.graphics.setLineWidth(1)
+end
+
+return Troll
         frame_width / 2,
         frame_height / 2
     )
