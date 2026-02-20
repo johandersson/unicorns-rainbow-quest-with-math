@@ -70,10 +70,9 @@ function TrollManager:update(dt)
         end
     end
     
-    -- Play warning sound if a troll is close but not colliding
+    -- Play warning sound if a troll is close (play earlier so player notices)
     local warning_radius_sq = 150 * 150  -- 22500
-    local collision_radius_sq_default = 45 * 45   -- 2025 (used as fallback)
-    if closest_dist_sq < warning_radius_sq and closest_dist_sq > collision_radius_sq_default and self.troll_sound_cooldown <= 0 then
+    if closest_dist_sq < warning_radius_sq and self.troll_sound_cooldown <= 0 then
         if self.game.soundManager then
             self.game.soundManager:play('troll')
             self.troll_sound_cooldown = 1.5  -- Play sound max once every 1.5 seconds
@@ -86,16 +85,27 @@ function TrollManager:update(dt)
         local t = entry.troll
         if entry.active then
             t:update(dt, self.game.unicorn)
-            -- Collision detection: use combined radii of troll and unicorn (prevents false negatives/positives)
-            local dx = self.game.unicorn.x - t.x
-            local dy = self.game.unicorn.y - t.y
-            local ux = self.game.unicorn.x
-            local uy = self.game.unicorn.y
+            -- Collision detection: use drawn troll position (includes bob) and a slightly smaller buffer
+            local bob = 0
+            if t.bob_timer and t.bob_amount then
+                bob = math.sin(t.bob_timer) * t.bob_amount
+            end
+            local tx = t.x
+            local ty = t.y + bob
+            local dx = self.game.unicorn.x - tx
+            local dy = self.game.unicorn.y - ty
+
             -- Unicorn approximate radius (use largest half-dimension)
             local unicorn_radius = math.max(self.game.unicorn.width or 20, self.game.unicorn.height or 20) * 0.5
-            local troll_radius = t.radius or math.sqrt(t.collision_radius_sq or (45 * 45))
-            -- add small buffer to account for sprite padding and movement
-            local buffer = 6
+            -- Prefer the troll's actual collision radius (sqrt of stored squared value) if present
+            local troll_radius = nil
+            if t.collision_radius_sq then
+                troll_radius = math.sqrt(t.collision_radius_sq)
+            else
+                troll_radius = t.radius or 45
+            end
+            -- reduce buffer to avoid surprising hits
+            local buffer = 2
             local collision_radius = unicorn_radius + troll_radius + buffer
             local collision_radius_sq = collision_radius * collision_radius
             if dx*dx + dy*dy < collision_radius_sq then
