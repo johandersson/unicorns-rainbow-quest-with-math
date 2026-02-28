@@ -107,7 +107,7 @@ function Troll:new(x, y, speed, radius)
         y = y,
         speed = speed or 180,
         radius = r,
-        collision_radius_sq = (r + 8) * (r + 8), -- some buffer
+        collision_radius_sq = (r + 2) * (r + 2), -- smaller buffer to avoid surprising hits
         bob_timer = 0,
         bob_speed = 6 + math.random() * 4,
         bob_amount = 4 + math.random() * 3,
@@ -132,7 +132,8 @@ function Troll:update(dt, target)
     -- horizontal homing towards target if provided
     if target and target.x then
         local dx = target.x - self.x
-        local max_move = 120 * dt
+        -- soften homing so trolls don't snap too aggressively to the player
+        local max_move = 80 * dt
         self.x = self.x + math.max(-max_move, math.min(max_move, dx))
     end
 

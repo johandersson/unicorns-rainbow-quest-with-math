@@ -28,7 +28,7 @@ function TrollManager:new(game)
         pool = {},
         base_speed = game.troll_base_speed or 200,
         spawn_timer = 0,
-        spawn_interval = game.troll_spawn_interval or 4.0,
+        spawn_interval = game.troll_spawn_interval or 5.0,
         troll_sound_cooldown = 0  -- Prevent sound spam
     }
     setmetatable(obj, self)
@@ -105,7 +105,7 @@ function TrollManager:update(dt)
                 troll_radius = t.radius or 45
             end
             -- reduce buffer to avoid surprising hits
-            local buffer = 2
+            local buffer = 0
             local collision_radius = unicorn_radius + troll_radius + buffer
             local collision_radius_sq = collision_radius * collision_radius
             if dx*dx + dy*dy < collision_radius_sq then

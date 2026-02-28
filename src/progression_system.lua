@@ -29,9 +29,9 @@ function ProgressionSystem:new()
         -- Extra life settings
         extra_life_base_cost = 250,
         extra_life_cost = 250,
-        -- Troll difficulty
-        troll_base_speed = 200,
-        troll_spawn_interval = 4.0
+        -- Troll difficulty (softer defaults for average players)
+        troll_base_speed = 180,
+        troll_spawn_interval = 5.0
     }
     
     setmetatable(obj, self)
@@ -82,9 +82,9 @@ function ProgressionSystem:levelUp()
     self.sun_hits = 0
     self.stage = self.stage + 1
     
-    -- Increase difficulty
-    self.troll_base_speed = self.troll_base_speed + 20
-    self.troll_spawn_interval = math.max(1.0, self.troll_spawn_interval - 0.25)
+    -- Increase difficulty more gently
+    self.troll_base_speed = self.troll_base_speed + 10
+    self.troll_spawn_interval = math.max(1.5, self.troll_spawn_interval - 0.20)
     
     -- Increase requirements
     self.sun_hits_required = math.ceil(3 + (self.stage - 1) * 0.75)
@@ -120,8 +120,8 @@ function ProgressionSystem:reset()
     self.sun_hits_required = 3
     self.coins_to_advance = 3
     self.extra_life_cost = self.extra_life_base_cost
-    self.troll_base_speed = 200
-    self.troll_spawn_interval = 4.0
+    self.troll_base_speed = 180
+    self.troll_spawn_interval = 5.0
 end
 
 return ProgressionSystem
