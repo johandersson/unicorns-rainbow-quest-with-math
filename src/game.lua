@@ -27,7 +27,7 @@ function Game:new()
         unicorn = nil,
         ground = 0,
         sun_x = 0,
-        sun_y = 50,
+        sun_y = 90,
         troll_spawn_timer = 0,
         sun_just_touched = false,  -- Prevent continuous sun triggering
         -- Quiz / math problem fields

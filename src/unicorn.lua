@@ -114,7 +114,7 @@ function Unicorn:update(dt)
         hit_ground = true
     end
 
-    self.y = math.max(half_w, math.min(new_y, self.ground - half_h))
+    self.y = math.max(half_h, math.min(new_y, self.ground - half_h))
     if hit_ground then
         self.vy = 0
     end

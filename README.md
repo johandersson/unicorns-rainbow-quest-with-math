@@ -34,7 +34,12 @@ Rainbow Quest - Unicorn Flight with Math is a charming, educational [LÖVE](http
 - Level ups (triumphant fanfare 400→800 Hz)
 - Deaths (descending tone 600→200 Hz)
 - Troll warning (low-frequency growl when trolls approach)
-- All sounds generated using LÖVE's SoundData API (no external files needed)
+- Sound effects are generated using LÖVE's SoundData API
+
+**Music**: The game includes
+["Paradise Found" by Kevin MacLeod](https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300000),
+licensed under
+[Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 **Scoring System**:
 - +3 points for each sun touch
@@ -120,7 +125,7 @@ graphics/                # Sprite assets
   ├── unicorn-sprite.png # Player sprite
 images/                  # Documentation screenshots
 assets/                  # Game assets
-  └── sounds/           # Sound files (currently unused, all procedural)
+  └── sounds/           # Background music and audio licensing details
 ```
 
 ## Controls

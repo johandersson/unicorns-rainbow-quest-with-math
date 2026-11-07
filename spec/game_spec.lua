@@ -75,4 +75,12 @@ describe("Game", function()
         assert.is_not_nil(g.level_up_alert)
         assert.is_false(g.stateManager.paused)
     end)
+
+    it("should leave enough room to fly completely above the sun", function()
+        local g = Game:new()
+        local sun_top = g.sun_y - 40
+        local unicorn_bottom_at_top_edge = g.unicorn.height
+
+        assert.is_true(unicorn_bottom_at_top_edge < sun_top)
+    end)
 end)

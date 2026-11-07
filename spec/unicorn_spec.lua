@@ -44,4 +44,13 @@ describe("Unicorn", function()
         local hit = u:update(0.1)
         assert.is_true(hit) -- Should return true for game over
     end)
+
+    it("should clamp the top edge using its height", function()
+        local u = Unicorn:new(100, 20, 550, 800)
+        love.keyboard.isDown = function(key) return key == 'up' end
+
+        u:update(0.1)
+
+        assert.are.equal(u.height * 0.5, u.y)
+    end)
 end)

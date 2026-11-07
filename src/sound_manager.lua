@@ -22,12 +22,21 @@ SoundManager.__index = SoundManager
 function SoundManager:new()
     local self = setmetatable({}, SoundManager)
     self.sounds = {}
+    self.music = nil
     self.enabled = true
     
     -- Generate procedural sounds using LÖVE's SoundData
     self:generateSounds()
+    self:loadMusic()
     
     return self
+end
+
+function SoundManager:loadMusic()
+    self.music = love.audio.newSource('assets/sounds/paradise-found.mp3', 'stream')
+    self.music:setLooping(true)
+    self.music:setVolume(0.18)
+    self.music:play()
 end
 
 function SoundManager:generateSounds()
@@ -154,11 +163,20 @@ function SoundManager:play(soundName)
 end
 
 function SoundManager:toggle()
-    self.enabled = not self.enabled
+    self:setEnabled(not self.enabled)
 end
 
 function SoundManager:setEnabled(enabled)
     self.enabled = enabled
+    if not self.music then return end
+
+    if enabled then
+        if not self.music:isPlaying() then
+            self.music:play()
+        end
+    else
+        self.music:pause()
+    end
 end
 
 return SoundManager
