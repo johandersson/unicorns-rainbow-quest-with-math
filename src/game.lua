@@ -90,8 +90,8 @@ function Game:new()
     obj.trollManager = require('src.troll_manager'):new(obj)
     obj.quizManager = require('src.quiz_manager'):new(obj)
     obj.scoreboardManager = require('src.scoreboard_manager'):new()
-    obj.settingsManager = require('src.settings_manager'):new(obj) -- Loads saved settings
-    obj.helpManager = require('src.help_manager'):new(obj)
+    obj.settingsManager = require('src.settings_manager').new(obj) -- Loads saved settings
+    obj.helpManager = require('src.help_manager').new(obj)
     obj.soundManager = require('src.sound_manager'):new()
     obj.coinManager = require('src.coin_manager'):new(obj.width, obj.height, 18, 30.0, 12.0, obj)
     obj.level_up_flash = nil
@@ -111,13 +111,48 @@ function Game:addTroll(x, y, speed)
     end
 end
 
+function Game:updateLevelUpTransition(dt)
+    if not self.level_up_alert then
+        return
+    end
+
+    self.level_up_alert.timer = self.level_up_alert.timer - dt
+    if self.level_up_flash then
+        self.level_up_flash.t = self.level_up_flash.t + dt
+    end
+
+    if self.level_up_alert.timer > 0 then
+        return
+    end
+
+    self.level_up_alert = nil
+    self.level_up_flash = nil
+    if self.level_up_pending_quiz then
+        self.level_up_pending_quiz = false
+        if self.quizManager then
+            self.quizManager:start()
+        else
+            self.quiz_active = true
+            self.quiz_input = ""
+            self.quiz_timer = self.quiz_time_limit
+        end
+    end
+end
+
+function Game:cancelLevelUpTransition()
+    self.level_up_alert = nil
+    self.level_up_flash = nil
+    self.level_up_pending_quiz = false
+end
+
 function Game:update(dt)
     -- Update settings manager timer
     if self.settingsManager then
         self.settingsManager:update(dt)
     end
     
-    if self.stateManager.game_over then 
+    if self.stateManager.game_over then
+        self:cancelLevelUpTransition()
         -- Finalize score when game ends
         if not self.show_highscore_celebration then
             self.scoreboardManager:finalizeScore()
@@ -125,6 +160,9 @@ function Game:update(dt)
         end
         return 
     end
+
+    self:updateLevelUpTransition(dt)
+
     if self.stateManager.manual_pause then return end
     if self.stateManager.show_welcome or self.name_input_active then return end
     
@@ -271,29 +309,6 @@ function Game:update(dt)
             local sx = math.random(0, self.width)
             local speed = self.progressionSystem:getTrollSpeed()
             self:addTroll(sx, -80, speed)
-        end
-    end
-
-    -- If a level-up alert is active, count it down and start the quiz when done
-    if self.level_up_alert then
-        self.level_up_alert.timer = self.level_up_alert.timer - dt
-        if self.level_up_flash then
-            self.level_up_flash.t = self.level_up_flash.t + dt
-        end
-        if self.level_up_alert.timer <= 0 then
-            -- clear alert and start quiz if pending
-            self.level_up_alert = nil
-            self.level_up_flash = nil
-            if self.level_up_pending_quiz then
-                self.level_up_pending_quiz = false
-                if self.quizManager then
-                    self.quizManager:start()
-                else
-                    self.quiz_active = true
-                    self.quiz_input = ""
-                    self.quiz_timer = self.quiz_time_limit
-                end
-            end
         end
     end
 

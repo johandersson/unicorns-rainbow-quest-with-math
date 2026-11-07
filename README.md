@@ -5,12 +5,23 @@ Rainbow Quest - Unicorn Flight with Math is a charming, educational [LÖVE](http
 ## Screenshots
 
 <p align="center">
+  <img src="images/player-name.png" width="400" alt="Player Name Screen">
   <img src="images/welcome-screen.png" width="400" alt="Welcome Screen">
+</p>
+<p align="center">
   <img src="images/gameplay.png" width="400" alt="Gameplay">
+  <img src="images/level-up.png" width="400" alt="Level Up">
 </p>
 <p align="center">
   <img src="images/quiz-dialog.png" width="400" alt="Math Quiz Dialog">
   <img src="images/quiz-result.png" width="400" alt="Quiz Result">
+</p>
+<p align="center">
+  <img src="images/scoreboard.png" width="400" alt="Scoreboard">
+  <img src="images/help.png" width="400" alt="Help">
+</p>
+<p align="center">
+  <img src="images/settings.png" width="400" alt="Settings">
 </p>
 
 ## Gameplay

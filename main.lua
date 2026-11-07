@@ -20,18 +20,38 @@
 local Game = require 'src.game'
 
 local game
+local screenshotCapture
+
+local function hasArgument(expected)
+    for _, value in ipairs(arg or {}) do
+        if value == expected then
+            return true
+        end
+    end
+    return false
+end
 
 function love.load()
     game = Game:new()
+    if hasArgument('--capture-screenshots') then
+        screenshotCapture = require('tools.screenshot_capture'):new(game)
+    end
 end
 
 function love.update(dt)
+    if screenshotCapture then
+        screenshotCapture:update()
+        return
+    end
     game:update(dt)
 end
 
 function love.draw()
     love.graphics.setBackgroundColor(0.529, 0.808, 0.922)
     game:draw()
+    if screenshotCapture then
+        screenshotCapture:afterDraw()
+    end
 end
 
 function love.keypressed(key)
