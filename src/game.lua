@@ -470,6 +470,14 @@ function Game:resize(w, h)
     self.ground = h - 50
     self.sun_x = w / 2
 
+    self.unicorn.screen_width = w
+    self.unicorn.ground = self.ground
+    self.unicorn.x = math.max(self.unicorn.width / 2, math.min(self.unicorn.x, w - self.unicorn.width / 2))
+    self.unicorn.y = math.max(self.unicorn.height / 2, math.min(self.unicorn.y, self.ground - self.unicorn.height / 2))
+
+    self.coinManager.width = w
+    self.coinManager.height = h
+
     -- Update all managers with new dimensions
     self.backgroundRenderer:resize(w, h, self.sun_x, self.ground)
     self.uiManager:resize(w, h)

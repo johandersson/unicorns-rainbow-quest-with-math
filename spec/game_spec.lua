@@ -122,4 +122,19 @@ describe("Game", function()
 
         assert.is_true(unicorn_bottom_at_top_edge < sun_top)
     end)
+
+    it("should update gameplay bounds when the window is resized", function()
+        local g = Game:new()
+        g:resize(1600, 900)
+        g.unicorn.x = 760
+        love.keyboard.isDown = function(key) return key == 'right' end
+
+        g.unicorn:update(0.2)
+
+        assert.are.equal(1600, g.unicorn.screen_width)
+        assert.are.equal(850, g.unicorn.ground)
+        assert.is_true(g.unicorn.x > 800)
+        assert.are.equal(1600, g.coinManager.width)
+        assert.are.equal(900, g.coinManager.height)
+    end)
 end)
