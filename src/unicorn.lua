@@ -38,6 +38,8 @@ function Unicorn:new(x, y, ground, width)
     local obj = {
         x = x or 400,
         y = y or 200,
+        previous_x = x or 400,
+        previous_y = y or 200,
         vx = 0,
         vy = 0,
         speed = 320,
@@ -66,6 +68,9 @@ function Unicorn:new(x, y, ground, width)
 end
 
 function Unicorn:update(dt)
+    self.previous_x = self.x
+    self.previous_y = self.y
+
     -- Horizontal movement (walk on ground, run in air)
     local move_speed = self.speed
     if self.on_ground then move_speed = self.walk_speed end

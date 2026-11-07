@@ -43,20 +43,43 @@ function Coin:update(dt)
 end
 
 function Coin:isCollectedBy(unicorn)
-    -- AABB collision using actual unicorn dimensions + generous pickup padding
     local ux = unicorn.x or 0
     local uy = unicorn.y or 0
+    local previous_x = unicorn.previous_x or ux
+    local previous_y = unicorn.previous_y or uy
 
-    -- Unicorn collection area: true half-size + generous pickup margin
     local uni_half_w = (unicorn.width or 40) * 0.5 + 25
     local uni_half_h = (unicorn.height or 30) * 0.5 + 25
-
-    -- Coin collection extent
     local coin_extent = self.radius + 5
+    local half_w = uni_half_w + coin_extent
+    local half_h = uni_half_h + coin_extent
 
-    -- Collect when unicorn area overlaps coin area
-    return math.abs(ux - self.x) < (uni_half_w + coin_extent) and
-           math.abs(uy - self.y) < (uni_half_h + coin_extent)
+    local start_x = previous_x - self.x
+    local start_y = previous_y - self.y
+    local delta_x = ux - previous_x
+    local delta_y = uy - previous_y
+    local entry_time = 0
+    local exit_time = 1
+
+    local function intersectsAxis(start, delta, extent)
+        if delta == 0 then
+            return math.abs(start) <= extent
+        end
+
+        local axis_entry = (-extent - start) / delta
+        local axis_exit = (extent - start) / delta
+        if axis_entry > axis_exit then
+            axis_entry, axis_exit = axis_exit, axis_entry
+        end
+
+        entry_time = math.max(entry_time, axis_entry)
+        exit_time = math.min(exit_time, axis_exit)
+        return entry_time <= exit_time
+    end
+
+    return intersectsAxis(start_x, delta_x, half_w) and
+           intersectsAxis(start_y, delta_y, half_h) and
+           exit_time >= 0 and entry_time <= 1
 end
 
 function Coin:draw()

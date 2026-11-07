@@ -58,4 +58,21 @@ describe("Game", function()
         g:keypressed('return')
         assert.are.equal(false, g.stateManager.show_welcome)
     end)
+
+    it("should not pause flight when reaching the sun on level up", function()
+        local g = Game:new()
+        g.stateManager.show_welcome = false
+        g.name_input_active = false
+        g.unicorn.x = g.sun_x
+        g.unicorn.y = g.sun_y
+        g.unicorn.update = function() return false end
+        g.trollManager.update = function() end
+        g.progressionSystem.sun_hits = g.progressionSystem.sun_hits_required - 1
+        g.coinManager.progress_coins = g.progressionSystem.coins_to_advance
+
+        g:update(0.1)
+
+        assert.is_not_nil(g.level_up_alert)
+        assert.is_false(g.stateManager.paused)
+    end)
 end)

@@ -212,8 +212,7 @@ function Game:update(dt)
                 self:addTroll(sx, -80, speed)
             end
 
-            -- Show retro level-up alert and defer quiz start until alert completes
-            self.stateManager.paused = true
+            -- Show retro level-up alert and defer quiz start without blocking flight
             local title = (self.L and self.L.level_up_title) or "Level Up!"
             local msgfmt = (self.L and self.L.level_up_msg) or "Stage %d reached!"
             local message = string.format(msgfmt, self.progressionSystem.stage)

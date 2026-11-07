@@ -26,6 +26,8 @@ describe("Unicorn", function()
         local u = Unicorn:new(100, 200, 550, 800)
         love.keyboard.isDown = function(key) return key == 'up' end
         u:update(0.1)
+        assert.are.equal(100, u.previous_x)
+        assert.are.equal(200, u.previous_y)
         assert.is_true(u.y < 200)
     end)
 
