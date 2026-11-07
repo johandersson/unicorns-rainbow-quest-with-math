@@ -76,6 +76,45 @@ describe("Game", function()
         assert.is_false(g.stateManager.paused)
     end)
 
+    it("should award points when the unicorn edge touches the sun", function()
+        local g = Game:new()
+        g.stateManager.show_welcome = false
+        g.name_input_active = false
+        g.unicorn.x = g.sun_x + 60
+        g.unicorn.y = g.sun_y
+        g.unicorn.update = function(self)
+            self.previous_x = self.x
+            self.previous_y = self.y
+            return false
+        end
+        g.trollManager.update = function() end
+
+        g:update(0.1)
+
+        assert.are.equal(3, g.scoreboardManager:getCurrentScore())
+        assert.are.equal(1, g.progressionSystem.sun_hits)
+    end)
+
+    it("should award points when the unicorn crosses the sun between updates", function()
+        local g = Game:new()
+        g.stateManager.show_welcome = false
+        g.name_input_active = false
+        g.unicorn.x = g.sun_x - 100
+        g.unicorn.y = g.sun_y
+        g.unicorn.update = function(self)
+            self.previous_x = self.x
+            self.previous_y = self.y
+            self.x = g.sun_x + 100
+            return false
+        end
+        g.trollManager.update = function() end
+
+        g:update(0.1)
+
+        assert.are.equal(3, g.scoreboardManager:getCurrentScore())
+        assert.are.equal(1, g.progressionSystem.sun_hits)
+    end)
+
     it("should leave enough room to fly completely above the sun", function()
         local g = Game:new()
         local sun_top = g.sun_y - 40

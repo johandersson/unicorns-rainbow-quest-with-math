@@ -20,6 +20,25 @@
 -- Main game coordinator - delegates responsibilities to specialized managers
 Game = {}
 
+local function segmentIntersectsCircle(start_x, start_y, end_x, end_y, center_x, center_y, radius)
+    local delta_x = end_x - start_x
+    local delta_y = end_y - start_y
+    local segment_length_squared = delta_x * delta_x + delta_y * delta_y
+    local closest_time = 0
+
+    if segment_length_squared > 0 then
+        closest_time = ((center_x - start_x) * delta_x + (center_y - start_y) * delta_y) /
+                       segment_length_squared
+        closest_time = math.max(0, math.min(1, closest_time))
+    end
+
+    local closest_x = start_x + delta_x * closest_time
+    local closest_y = start_y + delta_y * closest_time
+    local distance_x = closest_x - center_x
+    local distance_y = closest_y - center_y
+    return distance_x * distance_x + distance_y * distance_y <= radius * radius
+end
+
 function Game:new()
     local obj = {
         width = love.graphics.getWidth(),
@@ -163,12 +182,20 @@ function Game:update(dt)
         self.trollManager:update(dt)
     end
 
-    -- Check if reached the sun using circular collision (allows flying from any direction)
-    -- Visual sun radius is 40; use 48 so pickup feels fair without phantom triggers
-    local dx = self.unicorn.x - self.sun_x
-    local dy = self.unicorn.y - self.sun_y
-    local sun_radius = 48
-    local touching_sun = (dx*dx + dy*dy) < (sun_radius * sun_radius)
+    -- Include the unicorn body and its movement path so visible or fast contacts register.
+    local sun_radius = 40
+    local unicorn_radius = math.max(self.unicorn.width, self.unicorn.height) * 0.5
+    local previous_x = self.unicorn.previous_x or self.unicorn.x
+    local previous_y = self.unicorn.previous_y or self.unicorn.y
+    local touching_sun = segmentIntersectsCircle(
+        previous_x,
+        previous_y,
+        self.unicorn.x,
+        self.unicorn.y,
+        self.sun_x,
+        self.sun_y,
+        sun_radius + unicorn_radius
+    )
     
     if touching_sun and not self.sun_just_touched then
         self.sun_just_touched = true
